@@ -1,26 +1,32 @@
 export class Event {
-    id!: Number;
-    task_id!: Number;
-    start_time!: Date;
-    end_time!: Date;
+    id!: number;
+    taskId!: number;
+    startTime!: Date;
+    endTime!: Date;
+}
+
+export class RepeatSettings {
+    repeat!: boolean;
+    until!: Date;
+    days!: boolean[];
 }
 
 export class Task {
-    id!: Number;
+    id!: number;
     title!: string;
-    category!: Number;
-    created_time!: Date;
-    priority!: Number;
+    category!: number;
+    createdTime!: Date;
+    priority!: number;
 }
 
 export class Constraint {
-    id!: Number;
-    due_time!: Date;
-    duration!: Number;
+    id!: number;
+    dueTime!: Date;
+    duration!: number;
 }
 
 export class User {
-    id!: Number;
+    id!: number;
     email!: string;
     name!: string;
 }
