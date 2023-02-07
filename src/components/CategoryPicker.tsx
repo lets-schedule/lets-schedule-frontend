@@ -10,7 +10,7 @@ export default React.memo(function(props: any) {
     const handleValueChange = useCallback((value: string, options: any) => onChange(options.index),
         [onChange]);
     return (
-        <View style={commStyles.hBox}>
+        <View {...others} style={commStyles.hBox}>
             <Text>Category:</Text>
             <ColorPalette colors={categoryColors} value={categoryColors[value]}
                 onValueChange={handleValueChange} />

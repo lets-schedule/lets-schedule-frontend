@@ -8,7 +8,7 @@ import {RepeatSettings} from '../Model';
 export default React.memo(function(props: any) {
     const {value, onChange, ...others}:
         {value: RepeatSettings, onChange: (v: any) => void} = props;
-    const handleRepeatChange = useCallback((v: boolean) => onChange({...value, repeat: v}),
+    const handleRepeatChange = useCallback((v: boolean) => onChange({repeat: v}),
         [onChange]);
     const handleDayChanges = Array.from(new Array(7), (x, i) => useCallback((v: boolean) => {
         const newDays = value.days.slice();
@@ -42,9 +42,12 @@ export default React.memo(function(props: any) {
 });
 
 function VerticalCheckbox(props: any) {
-    const labelStyle = {marginLeft: 0};
     return (
         <Checkbox {...props}
-            containerStyle={commStyles.vBox} labelStyle={labelStyle} />
+            containerStyle={commStyles.vBox} labelStyle={styles.vertCheckLabel} />
     )
 }
+
+const styles = StyleSheet.create({
+    vertCheckLabel: {marginLeft: 0},
+})
