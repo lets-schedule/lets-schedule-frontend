@@ -1,42 +1,50 @@
-import React from 'react';
+import React, {useCallback} from 'react';
+import {StyleSheet} from 'react-native';
 import {Checkbox, RadioGroup, RadioButton, View} from 'react-native-ui-lib';
+import {commStyles} from './Util';
 import DateAndTime from './DateAndTime';
 import {RepeatSettings} from '../Model';
 
-export default function EditRepeatSettings(props: any) {
+export default React.memo(function(props: any) {
     const {value, onChange, ...others}:
-        {value: RepeatSettings, onChange: (v: RepeatSettings) => void} = props;
+        {value: RepeatSettings, onChange: (v: any) => void} = props;
+    const handleRepeatChange = useCallback((v: boolean) => onChange({...value, repeat: v}),
+        [onChange]);
+    const handleDayChanges = Array.from(new Array(7), (x, i) => useCallback((v: boolean) => {
+        const newDays = value.days.slice();
+        newDays[i] = v;
+        onChange({days: newDays});
+    }, [value.days, onChange]));
+    const handleUntilChange = useCallback((date: Date) => onChange({until: date}),
+        [onChange]);
     return (
-        <View {...others} style={{flexDirection: 'row'}}>
-            <View style={{flex: 1}}>
-                <RadioGroup initialValue={value.repeat} onValueChange={(v: boolean) =>
-                        onChange({...value, repeat: v})}>
+        <View {...others} style={commStyles.hBox}>
+            <View style={commStyles.expand}>
+                <RadioGroup initialValue={value.repeat} onValueChange={handleRepeatChange}>
                     <RadioButton value={false} label='Once' />
                     <RadioButton value={true} label='Weekly' />
                 </RadioGroup>
-                <View style={{flexDirection: 'row'}}>
+                <View style={commStyles.hBox}>
                     {value.repeat && ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((label, i) =>
                         <VerticalCheckbox key={i} label={label} value={value.days[i]}
-                            onValueChange={(v: boolean) => {
-                                const newDays = value.days.slice();
-                                newDays[i] = v;
-                                onChange({...value, days: newDays})}} />
+                            onValueChange={handleDayChanges[i]} />
                     )}
                 </View>
             </View>
-            <View style={{flex: 1}}>
+            <View style={commStyles.expand}>
                 {value.repeat &&
-                    <DateAndTime style={{flex: 1}} title='Until' value={value.until}
-                        onChange={(date: Date) => onChange({...value, until: date})}/>
+                    <DateAndTime style={commStyles.expand} title='Until' value={value.until}
+                        onChange={handleUntilChange}/>
                 }
             </View>
         </View>
     );
-}
+});
 
 function VerticalCheckbox(props: any) {
+    const labelStyle = {marginLeft: 0};
     return (
         <Checkbox {...props}
-            containerStyle={{flexDirection: 'column'}} labelStyle={{marginLeft: 0}} />
+            containerStyle={commStyles.vBox} labelStyle={labelStyle} />
     )
 }
