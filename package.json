@@ -20,7 +20,6 @@
   "devDependencies": {
     "@babel/core": "^7.20.0",
     "@babel/preset-env": "^7.20.0",
-    "@babel/preset-typescript": "^7.18.6",
     "@babel/runtime": "^7.20.0",
     "@react-native-community/eslint-config": "^3.0.0",
     "@testing-library/react-native": "^11.5.1",
@@ -39,7 +38,11 @@
   "jest": {
     "preset": "react-native",
     "transformIgnorePatterns": [
-      "/node_modules/(?!(react-native-ui-lib)/)"
-    ]
+      "/node_modules/(?!(react-native[a-z\\-]*|@react-native)/)"
+    ],
+    "setupFiles": [
+      "./node_modules/react-native-gesture-handler/jestSetup.js"
+    ],
+    "testEnvironment": "node"
   }
 }
