@@ -8,7 +8,7 @@ import {
 
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 
-import EditEventPage from './src/components/EditEventPage';
+import EditFixedEventPage from './src/components/EditFixedEventPage';
 import {commStyles} from './src/components/Util';
 
 function mergeState(prevState: any, update: any) {
@@ -45,7 +45,7 @@ function App(): JSX.Element {
         backgroundColor={backgroundStyle.backgroundColor}
       />
       <View style={commStyles.expand}>
-        <EditEventPage
+        <EditFixedEventPage
           event={event} onEventChange={handleEventChange}
           task={task} onTaskChange={handleTaskChange}
           repeat={repeat} onRepeatChange={handleRepeatChange} 
