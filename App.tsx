@@ -1,17 +1,13 @@
 import React, { useState, useCallback } from 'react';
-import {
-    SafeAreaView,
-    StatusBar,
-    useColorScheme,
-    View,
-} from 'react-native';
+import { useColorScheme } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { gestureHandlerRootHOC } from 'react-native-gesture-handler';
 
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 import EditFixedEventPage from './src/components/EditFixedEventPage';
 import TaskList from './src/components/TaskList';
-import { commStyles } from './src/components/Util';
 import { Task } from './src/Model';
 
 function mergeState(prevState: any, update: any) {
@@ -23,6 +19,8 @@ function mergeState(prevState: any, update: any) {
 function mergeStateAction(update: any) {
     return (prevState: any) => mergeState(prevState, update);
 }
+
+const Stack = createNativeStackNavigator();
 
 function App(): JSX.Element {
     const isDarkMode = useColorScheme() === 'dark';
@@ -53,15 +51,14 @@ function App(): JSX.Element {
     }, [tasksList]);
 
     return (
-        <SafeAreaView style={[backgroundStyle, { flex: 1 }]}>
-            <StatusBar
-                barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-                backgroundColor={backgroundStyle.backgroundColor}
-            />
-            <View style={commStyles.expand}>
-                <TaskList tasks={tasksList} onTaskDelete={handleTaskDelete} />
-            </View>
-        </SafeAreaView>
+        <NavigationContainer>
+            <Stack.Navigator>
+                <Stack.Screen name="TaskList" options={{title: 'Tasks'}}>
+                    {(props) => <TaskList {...props}
+                        tasks={tasksList} onTaskDelete={handleTaskDelete} />}
+                </Stack.Screen>
+            </Stack.Navigator>
+        </NavigationContainer>
     );
 }
 
