@@ -6,9 +6,9 @@ import { gestureHandlerRootHOC } from 'react-native-gesture-handler';
 
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 
-import EditFixedEventPage from './src/components/EditFixedEventPage';
 import TaskList from './src/components/TaskList';
 import { Task } from './src/Model';
+import EditAutoTaskPage from './src/components/EditAutoTaskPage';
 
 function mergeState(prevState: any, update: any) {
     const merged = { ...prevState, ...update };
@@ -46,6 +46,14 @@ function App(): JSX.Element {
     const handleTaskChange = useCallback((t: any) => setTask(mergeStateAction(t)), []);
     const handleRepeatChange = useCallback((r: any) => setRepeat(mergeStateAction(r)), []);
     const handleConstraintChange = useCallback((c: any) => setConstraint(mergeStateAction(c)), []);
+    const handleTaskCreate = useCallback(() => {
+        setTasksList([...tasksList, {
+            id: Math.floor(Math.random() * 1073741824), // 2 ^ 30
+            title: 'New Event',
+            category: 0,
+            priority: 2,
+            createdTime: new Date()}]);
+    }, [tasksList]);
     const handleTaskDelete = useCallback((item: Task) => {
         setTasksList(tasksList.filter(t => t.id !== item.id));
     }, [tasksList]);
@@ -55,6 +63,11 @@ function App(): JSX.Element {
             <Stack.Navigator>
                 <Stack.Screen name="TaskList" options={{title: 'Tasks'}}>
                     {(props) => <TaskList {...props}
+                        tasks={tasksList}
+                        onTaskCreate={handleTaskCreate} onTaskDelete={handleTaskDelete} />}
+                </Stack.Screen>
+                <Stack.Screen name="EditAutoTask" options={{title: 'Edit Task'}}>
+                    {(props) => <EditAutoTaskPage {...props}
                         tasks={tasksList} onTaskDelete={handleTaskDelete} />}
                 </Stack.Screen>
             </Stack.Navigator>

@@ -1,10 +1,11 @@
-import React, {useCallback} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import { FlatList } from 'react-native';
-import { Colors, Drawer, ListItem, Text, View } from 'react-native-ui-lib';
+import { Colors, Drawer, FloatingButton, ListItem, Text, View } from 'react-native-ui-lib';
 import { Task } from '../Model';
+import { commStyles } from './Util';
 
 export default function TaskList(props: any) {
-    const {tasks, onTaskChange, onTaskDelete, ...others} = props;
+    const {tasks, onTaskCreate, onTaskChange, onTaskDelete, ...others} = props;
 
     const renderTask = useCallback(({item, index} : {item: Task, index: number}) => (
         <Drawer leftItem={{text: 'Delete', background: Colors.red30,
@@ -14,9 +15,20 @@ export default function TaskList(props: any) {
             </ListItem>
         </Drawer>
     ), [onTaskChange, onTaskDelete]);
+    const button = useMemo(() => {
+        return {
+            label: 'Add Task',
+            onPress: onTaskCreate,
+        }}, [onTaskCreate]);
 
     return (
-        <FlatList data={tasks} renderItem={renderTask} keyExtractor={taskKeyExtractor} />
+        <View style={commStyles.expand}>
+            <FlatList data={tasks} renderItem={renderTask} keyExtractor={taskKeyExtractor} />
+            <FloatingButton
+                visible={true}
+                button={button}
+            />
+        </View>
     );
 }
 
