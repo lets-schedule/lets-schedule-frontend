@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Text, Typography, View} from 'react-native-ui-lib';
+import {Button, Text, View} from 'react-native-ui-lib';
 import {commStyles} from './Util';
 import EditRepeatSettings from './EditRepeatSettings';
 import {Event, Task, RepeatSettings} from '../Model'
@@ -14,7 +14,6 @@ export default function EditFixedEventPage(props: any) {
         others: any} = props;
     return (
         <View {...others}>
-            <Text style={Typography.text40L}>Edit Event</Text>
             <EditTask value={task} onChange={onTaskChange} />
             <EditEvent value={event} onChange={onEventChange} />
             <Text>Repeat</Text>

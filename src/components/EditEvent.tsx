@@ -7,10 +7,12 @@ import { Event } from '../Model';
 export default React.memo(function(props: any) {
     const {value, onChange, ...others}:
         {value: Event, onChange: (v: any) => void} = props;
-        const handleStartTimeChange = useCallback((date: Date) => onChange({startTime: date}),
-            [onChange]);
-        const handleEndTimeChange = useCallback((date: Date) => onChange({endTime: date}),
-            [onChange]);
+        const handleStartTimeChange = useCallback(
+            (date: Date) => onChange({id: value.id, startTime: date}),
+            [onChange, value.id]);
+        const handleEndTimeChange = useCallback(
+            (date: Date) => onChange({id: value.id, endTime: date}),
+            [onChange, value.id]);
     return (
         <View style={commStyles.hBox}>
             <DateAndTime style={commStyles.expand} title='Start' value={value.startTime}

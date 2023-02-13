@@ -11,10 +11,11 @@ export default React.memo(function(props: any) {
         {value: Constraint, onChange: (v: any) => void} = props;
     const handleDurationChange = useCallback((data: NumberInputData) => {
         if (data.type === 'valid')
-            onChange({duration: data.number * HOUR_MILLIS});
-    }, [onChange]);
-    const handleDueChange = useCallback((date: Date) => onChange({dueTime: date}),
-        [onChange]);
+            onChange({taskId: value.taskId, duration: data.number * HOUR_MILLIS});
+    }, [onChange, value.taskId]);
+    const handleDueChange = useCallback(
+        (date: Date) => onChange({taskId: value.taskId, dueTime: date}),
+        [onChange, value.taskId]);
     return (
         <View style={commStyles.hBox}>
             <View style={commStyles.expand}>

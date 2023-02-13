@@ -4,17 +4,24 @@ import { Colors, Drawer, FloatingButton, ListItem, Text, View } from 'react-nati
 import { Task } from '../Model';
 import { commStyles } from './Util';
 
-export default function TaskList(props: any) {
-    const {tasks, onTaskCreate, onTaskChange, onTaskDelete, ...others} = props;
+export default React.memo(function(props: any) {
+    const {navigation, tasks, onTaskCreate, onTaskDelete, ...others}:
+        {navigation: any, tasks: Record<number, Task>,
+            onTaskCreate: () => void, onTaskDelete: (t: Task) => void} = props;
 
-    const renderTask = useCallback(({item, index} : {item: Task, index: number}) => (
-        <Drawer leftItem={{text: 'Delete', background: Colors.red30,
-                onPress: () => {onTaskDelete(item)}}}>
-            <ListItem style={{backgroundColor: Colors.white}}>
-                <Text>{item.title}</Text>
-            </ListItem>
-        </Drawer>
-    ), [onTaskChange, onTaskDelete]);
+    const renderTask = useCallback(({item, index} : {item: Task, index: number}) => {
+        const itemPressed = () => {
+            navigation.navigate("EditAutoTask", { taskId: item.id })
+        };
+        return (
+            <Drawer leftItem={{text: 'Delete', background: Colors.red30,
+                    onPress: () => {onTaskDelete(item)}}}>
+                <ListItem style={{backgroundColor: Colors.white}} onPress={itemPressed}>
+                    <Text>{item.title}</Text>
+                </ListItem>
+            </Drawer>
+        )}, [onTaskDelete]);
+
     const button = useMemo(() => {
         return {
             label: 'Add Task',
@@ -22,15 +29,15 @@ export default function TaskList(props: any) {
         }}, [onTaskCreate]);
 
     return (
-        <View style={commStyles.expand}>
-            <FlatList data={tasks} renderItem={renderTask} keyExtractor={taskKeyExtractor} />
+        <View {...others} style={commStyles.expand}>
+            <FlatList data={Object.values(tasks)} renderItem={renderTask} keyExtractor={taskKeyExtractor} />
             <FloatingButton
                 visible={true}
                 button={button}
             />
         </View>
     );
-}
+});
 
 function taskKeyExtractor(task: Task, index: number) {
     return task.id.toString();

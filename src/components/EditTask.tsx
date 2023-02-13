@@ -7,12 +7,12 @@ import { commStyles } from './Util';
 export default React.memo(function(props: any) {
     const {value, onChange, ...others}:
         {value: Task, onChange: (v: any) => void} = props;
-    const handleTitleChange = useCallback((text: string) => onChange({title: text}),
-        [onChange]);
-    const handleCategoryChange = useCallback((c: number) => onChange({category: c}),
-        [onChange]);
-    const handlePriorityChange = useCallback((p: number) => onChange({priority: p}),
-        [onChange]);
+    const handleTitleChange = useCallback((text: string) => onChange({id: value.id, title: text}),
+        [onChange, value.id]);
+    const handleCategoryChange = useCallback((c: number) => onChange({id: value.id, category: c}),
+        [onChange, value.id]);
+    const handlePriorityChange = useCallback((p: number) => onChange({id: value.id, priority: p}),
+        [onChange, value.id]);
     return (
         <View {...others}>
             <TextField title='Title' value={value.title}  onChangeText={handleTitleChange} />

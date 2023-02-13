@@ -20,7 +20,7 @@ export class Task {
 }
 
 export class Constraint {
-    id!: number;
+    taskId!: number;
     dueTime!: Date;
     duration!: number;
 }
@@ -33,7 +33,7 @@ export class User {
 
 export class UserCache {
     user!: User;
-    events: Record<number, Event> = {};
-    tasks: Record<number, Task> = {};
-    constraints: Record<number, Constraint> = {};
+    events: Record<number, Event> = {}; // key is id
+    tasks: Record<number, Task> = {}; // key is id
+    constraints: Record<number, Constraint> = {}; // key is taskId
 }
