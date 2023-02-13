@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import {Button, View} from 'react-native-ui-lib';
+import {FloatingButton, View} from 'react-native-ui-lib';
 import {Task, Constraint} from '../Model';
 import { commStyles } from './Util';
 import EditTask from './EditTask';
@@ -14,12 +14,18 @@ export default React.memo(function({ route, navigation, ...props }: any) {
 
     const task = useMemo(() => tasks[taskId], [tasks, taskId]);
     const constraint = useMemo(() => constraints[taskId], [constraints, taskId]);
+    const button = useMemo(() => {
+        return {
+            label: 'Done',
+            onPress: () => navigation.goBack(),
+        }}, [navigation]);
+    
     return (
-        <View {...others}>
+        <View {...others} style={commStyles.expand}>
             <EditTask value={task} onChange={onTaskChange} />
             <EditConstraint value={constraint} onChange={onConstraintChange} />
             <View style={commStyles.expand} />
-            <Button label='Done' />
+            <FloatingButton visible={true} button={button} />
         </View>
     )
 });
