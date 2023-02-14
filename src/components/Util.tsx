@@ -15,3 +15,13 @@ export const commStyles = StyleSheet.create({
     expand: {flex: 1},
     grow: {flexGrow: 1},
 });
+
+export function mergeState(prevState: any, update: any) {
+    const merged = { ...prevState, ...update };
+    console.log(merged);
+    return merged;
+}
+
+export function mergeStateAction(update: any) {
+    return (prevState: any) => mergeState(prevState, update);
+}

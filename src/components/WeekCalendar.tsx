@@ -8,13 +8,17 @@ const hourHeight = 70;
 const hours = [...Array(24).keys()];
 
 export default function WeekCalendar(props: any) {
-    const {getDayEvents, ...others}:
-        {getDayEvents: (n: number) => Event[]} = props;
+    const {navigation, getDayEvents, onEventCreate, ...others}:
+        {navigation: any, getDayEvents: (n: number) => Event[],
+            onEventCreate: () => number} = props;
 
     const button = useMemo(() => {
         return {
             label: 'Add Event',
-            // onPress: onEventCreate,
+            onPress: () => {
+                const eventId = onEventCreate();
+                navigation.navigate("EditFixedEvent", { eventId: eventId });
+            }
         }}, []);
 
     return (

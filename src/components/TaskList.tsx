@@ -7,7 +7,7 @@ import { commStyles } from './Util';
 export default React.memo(function(props: any) {
     const {navigation, tasks, onTaskCreate, onTaskDelete, ...others}:
         {navigation: any, tasks: Record<number, Task>,
-            onTaskCreate: () => void, onTaskDelete: (t: Task) => void} = props;
+            onTaskCreate: () => number, onTaskDelete: (t: Task) => void} = props;
 
     const renderTask = useCallback(({item, index} : {item: Task, index: number}) => {
         const itemPressed = () => {

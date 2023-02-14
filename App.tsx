@@ -7,21 +7,13 @@ import { gestureHandlerRootHOC } from 'react-native-gesture-handler';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 import TaskList from './src/components/TaskList';
-import { Constraint, Task } from './src/Model';
+import { Event, Constraint, Task } from './src/Model';
+import { mergeState } from './src/components/Util';
 import EditAutoTaskPage from './src/components/EditAutoTaskPage';
 import WeeklyCalendar from './src/components/WeekCalendar';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-
-function mergeState(prevState: any, update: any) {
-    const merged = { ...prevState, ...update };
-    console.log(merged);
-    return merged;
-}
-
-function mergeStateAction(update: any) {
-    return (prevState: any) => mergeState(prevState, update);
-}
+import EditFixedEventPage from './src/components/EditFixedEventPage';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -33,8 +25,10 @@ function App(): JSX.Element {
         backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
     };
 
-    const [event, setEvent] = useState({ id: 0, taskId: 0, startTime: new Date(), endTime: new Date() });
-    const [repeat, setRepeat] = useState({ repeat: true, until: new Date(), days: [true, false, false, true, true, true, false] });
+    const [events, setEvents] = useState({
+        0: { id: 0, taskId: 0, startTime: new Date(), endTime: new Date() },
+        1: { id: 1, taskId: -1, startTime: new Date(), endTime: new Date() }
+    });
     const [tasks, setTasks] = useState({
         0: { id: 0, title: 'cool task', category: 0, priority: 2, createdTime: new Date() },
         1: { id: 1, title: 'task 2', category: 0, priority: 2, createdTime: new Date() },
@@ -44,8 +38,26 @@ function App(): JSX.Element {
         1: {taskId: 1, dueTime: new Date(), duration: 1000 * 60 * 60},
     });
 
-    const handleEventChange = useCallback((e: any) => setEvent(mergeStateAction(e)), []);
-    const handleRepeatChange = useCallback((r: any) => setRepeat(mergeStateAction(r)), []);
+    const handleEventCreate = useCallback(() => {
+        const newTask: Task = {
+            id: Math.floor(Math.random() * 1073741824), // 2 ^ 30
+            title: 'New Event',
+            category: 0,
+            priority: 2,
+            createdTime: new Date()
+        };
+        const newEvent: Event = {
+            id: Math.floor(Math.random() * 1073741824), // 2 ^ 30
+            taskId: newTask.id,
+            startTime: new Date(),
+            endTime: new Date(),
+        };
+        setTasks({...tasks, [newTask.id]: newTask});
+        setEvents({...events, [newEvent.id]: newEvent});
+        return newEvent.id;
+    }, [events])
+    const handleEventChange = useCallback((e: any) =>
+        setEvents({...events, [e.id]: mergeState(events[e.id], e)}), [events]);
     const handleTaskCreate = useCallback(() => {
         const newTask: Task = {
             id: Math.floor(Math.random() * 1073741824), // 2 ^ 30
@@ -84,7 +96,9 @@ function App(): JSX.Element {
                   size={size}
                 />
               )})}>
-            <Tab.Screen name="WeekCalendar" options={{title: 'Events'}} component={WeeklyCalendar} />
+            <Tab.Screen name="WeekCalendar" options={{title: 'Events'}}>
+                {(props) => <WeeklyCalendar {...props} onEventCreate={handleEventCreate} />}
+            </Tab.Screen>
             <Tab.Screen name="TaskList" options={{title: 'Tasks'}}>
                 {(props) => <TaskList {...props} tasks={tasks}
                         onTaskCreate={handleTaskCreate} onTaskDelete={handleTaskDelete} />}
@@ -103,6 +117,11 @@ function App(): JSX.Element {
                     {(props) => <EditAutoTaskPage {...props}
                         tasks={tasks} constraints={constraints} onTaskChange={handleTaskChange}
                         onConstraintChange={handleConstraintChange} />}
+                </Stack.Screen>
+                <Stack.Screen name="EditFixedEvent" options={{title: 'Edit Event'}}>
+                    {(props) => <EditFixedEventPage {...props}
+                        events={events} onEventChange={handleEventChange}
+                        tasks={tasks} onTaskChange={handleTaskChange} />}
                 </Stack.Screen>
             </Stack.Navigator>
         </NavigationContainer>
