@@ -36,8 +36,8 @@ function App(): JSX.Element {
     const [event, setEvent] = useState({ id: 0, taskId: 0, startTime: new Date(), endTime: new Date() });
     const [repeat, setRepeat] = useState({ repeat: true, until: new Date(), days: [true, false, false, true, true, true, false] });
     const [tasks, setTasks] = useState({
-        0: { id: 0, title: 'cool event', category: 0, priority: 2, createdTime: new Date() },
-        1: { id: 1, title: 'event 2', category: 0, priority: 2, createdTime: new Date() },
+        0: { id: 0, title: 'cool task', category: 0, priority: 2, createdTime: new Date() },
+        1: { id: 1, title: 'task 2', category: 0, priority: 2, createdTime: new Date() },
     });
     const [constraints, setConstraints] = useState({
         0: {taskId: 0, dueTime: new Date(), duration: 1000 * 60 * 60 * 5},
@@ -61,6 +61,7 @@ function App(): JSX.Element {
         };
         setTasks({...tasks, [newTask.id]: newTask});
         setConstraints({...constraints, [newConstraint.taskId]: newConstraint});
+        return newTask.id;
     }, [tasks, constraints]);
     const handleTaskDelete = useCallback((item: Task) => {
         setTasks((({[item.id]: _, ...rest}) => rest)(tasks));

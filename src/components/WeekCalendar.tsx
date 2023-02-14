@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
-import { Text, View } from 'react-native-ui-lib';
+import { FloatingButton, Text, View } from 'react-native-ui-lib';
 import { Event } from '../Model';
 import { dayLetters, HourToString } from './Util';
 
@@ -10,6 +10,13 @@ const hours = [...Array(24).keys()];
 export default function WeekCalendar(props: any) {
     const {getDayEvents, ...others}:
         {getDayEvents: (n: number) => Event[]} = props;
+
+    const button = useMemo(() => {
+        return {
+            label: 'Add Event',
+            // onPress: onEventCreate,
+        }}, []);
+
     return (
         <View style={{backgroundColor: '#EEEEEE'}}>
             <View style={{flexDirection: 'row', height: 30}}>
@@ -27,6 +34,7 @@ export default function WeekCalendar(props: any) {
                     )}
                 </View>
             </ScrollView>
+            <FloatingButton visible={true} button={button} />
         </View>
     );
 }

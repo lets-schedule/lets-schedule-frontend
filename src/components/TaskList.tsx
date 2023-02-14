@@ -25,7 +25,10 @@ export default React.memo(function(props: any) {
     const button = useMemo(() => {
         return {
             label: 'Add Task',
-            onPress: onTaskCreate,
+            onPress: () => {
+                const taskId = onTaskCreate();
+                navigation.navigate("EditAutoTask", { taskId: taskId });
+            },
         }}, [onTaskCreate]);
 
     return (
