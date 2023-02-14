@@ -1,7 +1,7 @@
 import React, {useCallback} from 'react';
 import {StyleSheet} from 'react-native';
 import {Checkbox, RadioGroup, RadioButton, View} from 'react-native-ui-lib';
-import {commStyles} from './Util';
+import {commStyles, dayLetters} from './Util';
 import DateAndTime from './DateAndTime';
 import {RepeatSettings} from '../Model';
 
@@ -25,7 +25,7 @@ export default React.memo(function(props: any) {
                     <RadioButton value={true} label='Weekly' />
                 </RadioGroup>
                 <View style={commStyles.hBox}>
-                    {value.repeat && ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((label, i) =>
+                    {value.repeat && dayLetters.map((label, i) =>
                         <VerticalCheckbox key={i} label={label} value={value.days[i]}
                             onValueChange={handleDayChanges[i]} />
                     )}
