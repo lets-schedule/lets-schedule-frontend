@@ -9,6 +9,9 @@ import { Colors } from 'react-native/Libraries/NewAppScreen';
 import TaskList from './src/components/TaskList';
 import { Constraint, Task } from './src/Model';
 import EditAutoTaskPage from './src/components/EditAutoTaskPage';
+import WeeklyCalendar from './src/components/WeekCalendar';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 function mergeState(prevState: any, update: any) {
     const merged = { ...prevState, ...update };
@@ -21,6 +24,7 @@ function mergeStateAction(update: any) {
 }
 
 const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
 
 function App(): JSX.Element {
     const isDarkMode = useColorScheme() === 'dark';
@@ -66,13 +70,34 @@ function App(): JSX.Element {
     const handleConstraintChange = useCallback((c: any) =>
         setConstraints({...constraints, [c.taskId]: mergeState(constraints[c.taskId], c)}), [constraints]);
 
+    const MainTabs = (props: any) => (
+        <Tab.Navigator screenOptions={({ route }) => ({
+            tabBarIcon: ({ color, size }) => (
+                <MaterialCommunityIcons
+                  name={{
+                    WeekCalendar: 'calendar-month',
+                    TaskList: 'format-list-checks',
+                    Settings: 'cog-outline',
+                  }[route.name]}
+                  color={color}
+                  size={size}
+                />
+              )})}>
+            <Tab.Screen name="WeekCalendar" options={{title: 'Events'}} component={WeeklyCalendar} />
+            <Tab.Screen name="TaskList" options={{title: 'Tasks'}}>
+                {(props) => <TaskList {...props} tasks={tasks}
+                        onTaskCreate={handleTaskCreate} onTaskDelete={handleTaskDelete} />}
+            </Tab.Screen>
+            <Tab.Screen name="Settings">
+                {() => null}
+            </Tab.Screen>
+        </Tab.Navigator>
+    );
+
     return (
         <NavigationContainer>
-            <Stack.Navigator initialRouteName="TaskList">
-                <Stack.Screen name="TaskList" options={{title: 'Tasks'}}>
-                    {(props) => <TaskList {...props} tasks={tasks}
-                        onTaskCreate={handleTaskCreate} onTaskDelete={handleTaskDelete} />}
-                </Stack.Screen>
+            <Stack.Navigator initialRouteName="MainTabs">
+                <Stack.Screen name="MainTabs" component={MainTabs} options={{headerShown: false}} />
                 <Stack.Screen name="EditAutoTask" options={{title: 'Edit Task'}}>
                     {(props) => <EditAutoTaskPage {...props}
                         tasks={tasks} constraints={constraints} onTaskChange={handleTaskChange}
