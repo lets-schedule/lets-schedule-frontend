@@ -40,7 +40,7 @@ export default React.memo(function ({ route, navigation, ...props }: any) {
                 <View style={commStyles.padded} />
             </View>
         </ScrollView>
-        <FloatingButton visible={true} button={button} />
+        <FloatingButton visible={true} button={button} hideBackgroundOverlay={true} />
         </>
     );
 });

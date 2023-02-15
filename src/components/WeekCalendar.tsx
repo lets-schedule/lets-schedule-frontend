@@ -39,11 +39,11 @@ export default React.memo(function(props: any) {
         <View style={commStyles.expand} >
             <View style={commStyles.hBox}>
                 <TouchableOpacity>
-                    <MaterialCommunityIcons name='arrow-left-thick' size={36} color='#222222' />
+                    <MaterialCommunityIcons name='arrow-left-thick' size={32} color='#222222' />
                 </TouchableOpacity>
                 <Text text40 style={styles.title}>{monthNames[week.getMonth()]}</Text>
                 <TouchableOpacity>
-                    <MaterialCommunityIcons name='arrow-right-thick' size={36} color='#222222' />
+                    <MaterialCommunityIcons name='arrow-right-thick' size={32} color='#222222' />
                 </TouchableOpacity>
             </View>
             <View style={styles.hourDivider} />
@@ -62,7 +62,7 @@ export default React.memo(function(props: any) {
                             events={dayEvents[i]} tasks={tasks} navigation={navigation} />) }
                 </View>
             </ScrollView>
-            <FloatingButton visible={true} button={button} />
+            <FloatingButton visible={true} button={button} hideBackgroundOverlay={true} />
         </View>
     );
 });
