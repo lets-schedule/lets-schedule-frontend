@@ -4,6 +4,8 @@ export function randomId() {
     return Math.floor(Math.random() * 1073741824); // 2 ^ 30
 }
 
+export const monthNames = ["January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"];
 export const dayLetters = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
 export function hourToString(hour: number) {

@@ -10,7 +10,7 @@ import TaskList from './src/components/TaskList';
 import { Event, Constraint, Task } from './src/Model';
 import { mergeState, randomId, startOfHour } from './src/Util';
 import EditAutoTaskPage from './src/components/EditAutoTaskPage';
-import WeeklyCalendar from './src/components/WeekCalendar';
+import WeekCalendar from './src/components/WeekCalendar';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import EditFixedEventPage from './src/components/EditFixedEventPage';
@@ -114,7 +114,7 @@ function App(): JSX.Element {
                 />
               )})}>
             <Tab.Screen name="WeekCalendar" options={{title: 'Events'}}>
-                {(props) => <WeeklyCalendar {...props} onEventCreate={handleEventCreate}
+                {(props) => <WeekCalendar {...props} onEventCreate={handleEventCreate}
                     week={curWeek} curTime={curTime} getDayEvents={getDayEvents} tasks={tasks} />}
             </Tab.Screen>
             <Tab.Screen name="TaskList" options={{title: 'Tasks'}}>

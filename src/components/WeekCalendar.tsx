@@ -2,9 +2,10 @@ import { useIsFocused } from '@react-navigation/native';
 import React, { useCallback, useMemo } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import { FloatingButton, Text, TouchableOpacity, View } from 'react-native-ui-lib';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Event, Task } from '../Model';
 import { categoryColors } from './CategoryPicker';
-import { commStyles, dayLetters, hourToString } from '../Util';
+import { commStyles, dayLetters, hourToString, monthNames } from '../Util';
 
 const hourHeight = 70;
 const hours = [...Array(24).keys()];
@@ -36,6 +37,16 @@ export default React.memo(function(props: any) {
         return <></>
     return (
         <View style={commStyles.expand} >
+            <View style={commStyles.hBox}>
+                <TouchableOpacity>
+                    <MaterialCommunityIcons name='arrow-left-thick' size={36} color='#222222' />
+                </TouchableOpacity>
+                <Text text40 style={styles.title}>{monthNames[week.getMonth()]}</Text>
+                <TouchableOpacity>
+                    <MaterialCommunityIcons name='arrow-right-thick' size={36} color='#222222' />
+                </TouchableOpacity>
+            </View>
+            <View style={styles.hourDivider} />
             <View style={styles.header}>
                 <DayHeader day='' date='' />
                 {dayLetters.map((label, i) =>
@@ -142,6 +153,7 @@ function getTimeHeight(diff: number) {
 }
 
 const styles = StyleSheet.create({
+    title: {textAlign: 'center', paddingBottom: 10, flex: 1},
     header: {flexDirection: 'row', height: 50},
     dayColumn: {flex: 1, borderRightWidth: 1, borderRightColor: '#888888'},
     dayLabel: {textAlign: 'center'},
