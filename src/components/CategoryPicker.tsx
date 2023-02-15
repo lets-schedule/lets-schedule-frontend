@@ -11,7 +11,7 @@ export default React.memo(function(props: any) {
         [onChange]);
     return (
         <View {...others} style={commStyles.hBox}>
-            <Text>Category:</Text>
+            <Text style={commStyles.padded}>Category:</Text>
             <ColorPalette colors={categoryColors} value={categoryColors[value]}
                 onValueChange={handleValueChange} />
         </View>

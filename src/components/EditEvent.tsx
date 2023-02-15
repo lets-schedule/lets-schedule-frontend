@@ -17,6 +17,7 @@ export default React.memo(function(props: any) {
         <View style={commStyles.hBox}>
             <DateAndTime style={commStyles.expand} title='Start' value={value.startTime}
                 onChange={handleStartTimeChange} />
+            <View style={commStyles.padded} />
             <DateAndTime style={commStyles.expand} title='End' value={value.endTime}
                 onChange={handleEndTimeChange} />
         </View>

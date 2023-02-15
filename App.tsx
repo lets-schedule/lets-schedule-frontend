@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { useColorScheme } from 'react-native';
+import { LogBox, useColorScheme } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { gestureHandlerRootHOC } from 'react-native-gesture-handler';
@@ -17,6 +17,8 @@ import EditFixedEventPage from './src/components/EditFixedEventPage';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+
+LogBox.ignoreAllLogs();
 
 function App(): JSX.Element {
     const isDarkMode = useColorScheme() === 'dark';

@@ -28,7 +28,7 @@ const PriorityPicker = React.memo(function(props: any) {
     const {value, onChange, ...others} = props;
     return (
         <View {...others} style={commStyles.hBox}>
-            <Text>Priority:</Text>
+            <Text style={commStyles.padded}>Priority:</Text>
             <View style={commStyles.expand}>
                 <SegmentedControl segments={prioritySegments} initialIndex={value}
                     onChangeIndex={onChange} />

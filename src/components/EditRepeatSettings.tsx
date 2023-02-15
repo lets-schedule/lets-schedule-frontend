@@ -24,6 +24,7 @@ export default React.memo(function(props: any) {
                     <RadioButton value={false} label='Once' />
                     <RadioButton value={true} label='Weekly' />
                 </RadioGroup>
+                <View style={commStyles.padded} />
                 <View style={commStyles.hBox}>
                     {value.repeat && dayLetters.map((label, i) =>
                         <VerticalCheckbox key={i} label={label} value={value.days[i]}

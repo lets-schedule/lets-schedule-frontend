@@ -21,8 +21,9 @@ export default React.memo(function({ route, navigation, ...props }: any) {
         }}, [navigation]);
     
     return (
-        <View {...others} style={commStyles.expand}>
+        <View {...others} style={commStyles.formPage}>
             <EditTask value={task} onChange={onTaskChange} />
+            <View style={commStyles.padded} />
             <EditConstraint value={constraint} onChange={onConstraintChange} />
             <View style={commStyles.expand} />
             <FloatingButton visible={true} button={button} />
