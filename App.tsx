@@ -15,6 +15,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import EditFixedEventPage from './src/components/EditFixedEventPage';
 import { removeTaskEvents, scheduleTaskEvents } from './src/AutoSchedule';
+import LoginPage from './src/components/LoginPage';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -133,7 +134,8 @@ function App(): JSX.Element {
 
     return (
         <NavigationContainer>
-            <Stack.Navigator initialRouteName="MainTabs">
+            <Stack.Navigator initialRouteName="Login">
+                <Stack.Screen name="Login" component={LoginPage} options={{title: 'Log In'}} />
                 <Stack.Screen name="MainTabs" component={MainTabs} options={{headerShown: false}} />
                 <Stack.Screen name="EditAutoTask" options={{title: 'Edit Task'}}>
                     {(props) => <EditAutoTaskPage {...props}
