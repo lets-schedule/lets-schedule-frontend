@@ -71,8 +71,8 @@ function DayHeader(props: any) {
     const {day, dateNum} = props;
     return (
         <View style={styles.dayColumn}>
-            <Text style={styles.dayLabel}>{day}</Text>
-            <Text style={styles.dayLabel}>{dateNum}</Text>
+            <Text style={commStyles.centerText}>{day}</Text>
+            <Text style={commStyles.centerText}>{dateNum}</Text>
         </View>
     )
 }
@@ -156,7 +156,6 @@ const styles = StyleSheet.create({
     title: {textAlign: 'center', paddingBottom: 10, flex: 1},
     header: {flexDirection: 'row', height: 50},
     dayColumn: {flex: 1, borderRightWidth: 1, borderRightColor: '#888888'},
-    dayLabel: {textAlign: 'center'},
     hourDivider: {height: 1, marginTop: -1, backgroundColor: '#888888'},
     hourSpace: {height: hourHeight},
     hourLabel: {height: 20, marginTop: -10, marginBottom: -10, textAlign: 'right'},

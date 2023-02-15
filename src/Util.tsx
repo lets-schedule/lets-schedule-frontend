@@ -27,6 +27,7 @@ export const commStyles = StyleSheet.create({
     vBox: {flexDirection: 'column'},
     expand: {flex: 1},
     grow: {flexGrow: 1},
+    centerText: {textAlign: 'center'},
     formPage: {flex: 1, padding: 20},
     padded: {padding: 10},
 });

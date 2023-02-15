@@ -1,6 +1,6 @@
 import { useIsFocused } from '@react-navigation/native';
 import React, {useCallback, useMemo} from 'react';
-import { FlatList } from 'react-native';
+import { FlatList, StyleSheet } from 'react-native';
 import { Colors, Drawer, FloatingButton, ListItem, Text, View } from 'react-native-ui-lib';
 import { Constraint, Task } from '../Model';
 import { commStyles } from '../Util';
@@ -17,8 +17,10 @@ export default React.memo(function(props: any) {
         return (
             <Drawer leftItem={{text: 'Delete', background: Colors.red30,
                     onPress: () => {onTaskDelete(item)}}}>
-                <ListItem style={{backgroundColor: Colors.white}} onPress={itemPressed}>
+                <ListItem style={styles.taskItem} onPress={itemPressed}>
                     <Text>{item.title}</Text>
+                    <View style={commStyles.grow} />
+                    <Text>{'Due: '+ constraints[item.id].dueTime.toLocaleDateString()}</Text>
                 </ListItem>
             </Drawer>
         )}, [onTaskDelete]);
@@ -39,7 +41,13 @@ export default React.memo(function(props: any) {
         return <></>
     return (
         <View {...others} style={commStyles.expand}>
-            <FlatList data={taskList} renderItem={renderTask} keyExtractor={taskKeyExtractor} />
+            { taskList.length == 0 ?
+                <>
+                    <View style={commStyles.padded} />
+                    <Text style={commStyles.centerText}>No tasks added yet.</Text>
+                </> :
+                <FlatList data={taskList} renderItem={renderTask} keyExtractor={taskKeyExtractor} />
+            }
             <FloatingButton
                 visible={true}
                 button={button}
@@ -51,3 +59,14 @@ export default React.memo(function(props: any) {
 function taskKeyExtractor(task: Task, index: number) {
     return task.id.toString();
 }
+
+const styles = StyleSheet.create({
+    taskItem: {
+        flex: 1,
+        backgroundColor: Colors.white,
+        alignItems: 'center',
+        flexDirection: 'row',
+        paddingLeft: 10,
+        paddingRight: 10,
+    },
+});
