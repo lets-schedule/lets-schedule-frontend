@@ -4,7 +4,7 @@ import { ScrollView, StyleSheet } from 'react-native';
 import { FloatingButton, Text, TouchableOpacity, View } from 'react-native-ui-lib';
 import { Event, Task } from '../Model';
 import { categoryColors } from './CategoryPicker';
-import { dayLetters, HourToString } from './Util';
+import { commStyles, dayLetters, HourToString } from './Util';
 
 const hourHeight = 70;
 const hours = [...Array(24).keys()];
@@ -34,7 +34,7 @@ export default React.memo(function(props: any) {
     if (!useIsFocused())
         return <></>
     return (
-        <View>
+        <View style={commStyles.expand} >
             <View style={{flexDirection: 'row', height: 50}}>
                 <DayHeader day='' date='' />
                 {dayLetters.map((label, i) =>
@@ -42,7 +42,7 @@ export default React.memo(function(props: any) {
                 )}
             </View>
             <HourDivider />
-            <ScrollView contentOffset={{x: 0, y: 9 * hourHeight}}>
+            <ScrollView style={commStyles.expand} contentOffset={{x: 0, y: 9 * hourHeight}}>
                 <View style={{flexDirection: 'row'}}>
                     <TimeColumn />
                     { dayLetters.map((label, i) =>
