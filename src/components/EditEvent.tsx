@@ -8,8 +8,13 @@ export default React.memo(function(props: any) {
     const {value, onChange, ...others}:
         {value: Event, onChange: (v: any) => void} = props;
         const handleStartTimeChange = useCallback(
-            (date: Date) => onChange({id: value.id, startTime: date}),
-            [onChange, value.id]);
+            (date: Date) => onChange({
+                id: value.id,
+                startTime: date,
+                endTime: new Date(value.endTime.getTime()
+                    + (date.getTime() - value.startTime.getTime())),
+            }),
+            [onChange, value.id, value.startTime, value.endTime]);
         const handleEndTimeChange = useCallback(
             (date: Date) => onChange({id: value.id, endTime: date}),
             [onChange, value.id]);

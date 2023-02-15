@@ -19,7 +19,7 @@ export default React.memo(function(props: any) {
     return (
         <View style={commStyles.hBox}>
             <View style={commStyles.expand}>
-                <NumberInput label='Duration' trailingText=' hours'
+                <NumberInput label='Duration:' trailingText=' hours'
                     initialNumber={value.duration / HOUR_MILLIS}
                     onChangeNumber={handleDurationChange} />
             </View>
