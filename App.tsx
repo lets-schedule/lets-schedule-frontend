@@ -37,7 +37,7 @@ function App(): JSX.Element {
     const [constraints, setConstraints] = useState({});
 
     const curWeek = useMemo(() => {
-        let date = curDate;
+        let date = new Date(curDate);
         date.setDate(date.getDate() - date.getDay());
         return date;
     }, [])
