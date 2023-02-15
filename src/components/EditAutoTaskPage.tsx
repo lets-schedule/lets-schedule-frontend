@@ -19,7 +19,7 @@ export default React.memo(function({ route, navigation, ...props }: any) {
         return {
             label: 'Done',
             onPress: () => {navigation.goBack(); onComplete(taskId)},
-        }}, [navigation]);
+        }}, [navigation, onComplete]);
 
     return (
         <View {...others} style={commStyles.formPage}>

@@ -89,13 +89,13 @@ function App(): JSX.Element {
         setTasks({...tasks, [t.id]: mergeState(tasks[t.id], t)}), [tasks]);
     const handleConstraintChange = useCallback((c: any) =>
         setConstraints({...constraints, [c.taskId]: mergeState(constraints[c.taskId], c)}), [constraints]);
-    
+
     const getDayEvents = useCallback((date: Date) =>
         Object.values(events).filter((value: Event) =>
             value.startTime.getDate() == date.getDate()
             && value.startTime.getMonth() == date.getMonth()
             && value.startTime.getFullYear() == date.getFullYear()), [events]);
-    
+
     const handleAutoSchedule = useCallback((taskId: number) => {
         const newEvents = removeTaskEvents(taskId, events);
         setEvents(scheduleTaskEvents(taskId, constraints[taskId], newEvents, curDate));
