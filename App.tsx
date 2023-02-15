@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useColorScheme } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -25,9 +25,13 @@ function App(): JSX.Element {
         backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
     };
 
+    const hourLater = useMemo(() => {
+        let date = new Date();
+        date.setHours(date.getHours() + 1);
+        return date;
+    }, [])
     const [events, setEvents] = useState({
-        0: { id: 0, taskId: 0, startTime: new Date(), endTime: new Date() },
-        1: { id: 1, taskId: -1, startTime: new Date(), endTime: new Date() }
+        0: { id: 0, taskId: 0, startTime: new Date(), endTime: hourLater },
     });
     const [tasks, setTasks] = useState({
         0: { id: 0, title: 'cool task', category: 0, priority: 2, createdTime: new Date() },
@@ -37,6 +41,12 @@ function App(): JSX.Element {
         0: {taskId: 0, dueTime: new Date(), duration: 1000 * 60 * 60 * 5},
         1: {taskId: 1, dueTime: new Date(), duration: 1000 * 60 * 60},
     });
+
+    const curWeek = useMemo(() => {
+        let date = new Date();
+        date.setDate(date.getDate() - date.getDay());
+        return date;
+    }, [])
 
     const handleEventCreate = useCallback(() => {
         const newTask: Task = {
@@ -97,7 +107,8 @@ function App(): JSX.Element {
                 />
               )})}>
             <Tab.Screen name="WeekCalendar" options={{title: 'Events'}}>
-                {(props) => <WeeklyCalendar {...props} onEventCreate={handleEventCreate} />}
+                {(props) => <WeeklyCalendar {...props} onEventCreate={handleEventCreate}
+                    week={curWeek} curTime={new Date()} />}
             </Tab.Screen>
             <Tab.Screen name="TaskList" options={{title: 'Tasks'}}>
                 {(props) => <TaskList {...props} tasks={tasks}
