@@ -92,6 +92,12 @@ function App(): JSX.Element {
         setTasks({...tasks, [t.id]: mergeState(tasks[t.id], t)}), [tasks]);
     const handleConstraintChange = useCallback((c: any) =>
         setConstraints({...constraints, [c.taskId]: mergeState(constraints[c.taskId], c)}), [constraints]);
+    
+    const getDayEvents = useCallback((date: Date) =>
+        Object.values(events).filter((value: Event) =>
+            value.startTime.getDate() == date.getDate()
+            && value.startTime.getMonth() == date.getMonth()
+            && value.startTime.getFullYear() == date.getFullYear()), [events]);
 
     const MainTabs = (props: any) => (
         <Tab.Navigator screenOptions={({ route }) => ({
@@ -108,7 +114,7 @@ function App(): JSX.Element {
               )})}>
             <Tab.Screen name="WeekCalendar" options={{title: 'Events'}}>
                 {(props) => <WeeklyCalendar {...props} onEventCreate={handleEventCreate}
-                    week={curWeek} curTime={new Date()} />}
+                    week={curWeek} curTime={new Date()} getDayEvents={getDayEvents} />}
             </Tab.Screen>
             <Tab.Screen name="TaskList" options={{title: 'Tasks'}}>
                 {(props) => <TaskList {...props} tasks={tasks}

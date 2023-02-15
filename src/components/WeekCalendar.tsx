@@ -9,7 +9,7 @@ const hours = [...Array(24).keys()];
 
 export default function WeekCalendar(props: any) {
     const {navigation, getDayEvents, onEventCreate, week, curTime, ...others}:
-        {navigation: any, getDayEvents: (n: number) => Event[],
+        {navigation: any, getDayEvents: (date: Date) => Event[],
             onEventCreate: () => number, week: Date, curTime: Date} = props;
 
     const button = useMemo(() => {
@@ -26,6 +26,8 @@ export default function WeekCalendar(props: any) {
             date.setDate(date.getDate() + i);
             return date;
         }), [week]);
+    const dayEvents: Event[][] = useMemo(() =>
+        dates.map((date, i) => getDayEvents(date)), [dates, getDayEvents]);
 
     return (
         <View>
@@ -36,11 +38,11 @@ export default function WeekCalendar(props: any) {
                 )}
             </View>
             <HourDivider />
-            <ScrollView>
+            <ScrollView contentOffset={{x: 0, y: 9 * hourHeight}}>
                 <View style={{flexDirection: 'row'}}>
                     <TimeColumn />
                     { dayLetters.map((label, i) =>
-                        <DayColumn key={i} date={dates[i]} curTime={curTime} />) }
+                        <DayColumn key={i} date={dates[i]} curTime={curTime} events={dayEvents[i]} />) }
                 </View>
             </ScrollView>
             <FloatingButton visible={true} button={button} />
@@ -63,6 +65,7 @@ function DayColumn(props: any) {
             <HourSpace />
             {props.curTime.getDate() == props.date.getDate() ?
                 <TimeMarker date={new Date()} /> : <></> }
+            {props.events.map((event, i) => <WeekEvent value={event} />)}
             {hours.map((hour, i) =>
                 <>
                     <HourDivider />
@@ -100,19 +103,29 @@ function HourSpace(props: any) {
 }
 
 function WeekEvent(props: any) {
-
+    const {value} : {value: Event} = props;
+    const height = useMemo(() =>
+        getTimeHeight(value.endTime.getTime() - value.startTime.getTime()), []);
+    return (
+        <View style={{zIndex: 1, top: getTimeOffset(value.startTime),
+            height: height, marginBottom: -height, backgroundColor: '#00FF00'}} />
+    )
 }
 
 function TimeMarker(props: any) {
     return (
-        <View style={{zIndex: 1, top: getTimeHeight(props.date),
-            height: 1, marginTop: -1, backgroundColor: '#0000FF'}} />
+        <View style={{zIndex: 2, top: getTimeOffset(props.date),
+            height: 2, marginTop: -1, marginBottom: -1, backgroundColor: '#0000FF'}} />
     );
 }
 
-function getTimeHeight(date: Date) {
+function getTimeOffset(date: Date) {
     var hours = date.getHours() + date.getMinutes() / 60;
     return hours * hourHeight;
+}
+
+function getTimeHeight(diff: number) {
+    return diff / (1000 * 60 * 60) * hourHeight;
 }
 
 const styles = StyleSheet.create({
