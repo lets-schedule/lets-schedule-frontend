@@ -43,7 +43,7 @@ function App(): JSX.Element {
         const newTask: Task = {
             id: randomId(),
             title: 'New Event',
-            category: 1,
+            category: 0,
             priority: 2,
             createdTime: new Date()
         };
@@ -65,7 +65,7 @@ function App(): JSX.Element {
         const newTask: Task = {
             id: randomId(),
             title: 'New Task',
-            category: 3,
+            category: 2,
             priority: 2,
             createdTime: new Date(),
         };
