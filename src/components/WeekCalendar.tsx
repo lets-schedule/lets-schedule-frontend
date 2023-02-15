@@ -125,7 +125,7 @@ function WeekEvent(props: any) {
         navigation.navigate("EditFixedEvent", { eventId: event.id }), [event]);
     return (
         <TouchableOpacity style={style} onPress={onPress}>
-            <Text>{task.title}</Text>
+            <Text style={styles.eventLabel}>{task.title}</Text>
         </TouchableOpacity>
     )
 }
@@ -159,4 +159,5 @@ const styles = StyleSheet.create({
     hourDivider: {height: 1, marginTop: -1, backgroundColor: '#888888'},
     hourSpace: {height: hourHeight},
     hourLabel: {height: 20, marginTop: -10, marginBottom: -10, textAlign: 'right'},
+    eventLabel: {color: '#FFFFFF'},
 })

@@ -20,6 +20,8 @@ import LoginPage from './src/components/LoginPage';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
+const curDate = new Date(); // TODO: update time!!
+
 LogBox.ignoreAllLogs();
 
 function App(): JSX.Element {
@@ -34,7 +36,7 @@ function App(): JSX.Element {
     const [constraints, setConstraints] = useState({});
 
     const curWeek = useMemo(() => {
-        let date = new Date();
+        let date = curDate;
         date.setDate(date.getDate() - date.getDay());
         return date;
     }, [])
@@ -47,7 +49,7 @@ function App(): JSX.Element {
             priority: 2,
             createdTime: new Date()
         };
-        const startTime = startOfHour(new Date(new Date().getTime() + 1000 * 60 * 60));
+        const startTime = startOfHour(new Date(curDate.getTime() + 1000 * 60 * 60));
         const endTime = new Date(startTime.getTime() + 1000 * 60 * 60);
         const newEvent: Event = {
             id: randomId(),
@@ -71,7 +73,7 @@ function App(): JSX.Element {
         };
         const newConstraint: Constraint = {
             taskId: newTask.id,
-            dueTime: startOfHour(new Date(new Date().getTime() + 1000 * 60 * 60)),
+            dueTime: startOfHour(new Date(curDate.getTime() + 1000 * 60 * 60)),
             duration: 1000 * 60 * 60,
         };
         setTasks({...tasks, [newTask.id]: newTask});
@@ -95,10 +97,8 @@ function App(): JSX.Element {
     
     const handleAutoSchedule = useCallback((taskId: number) => {
         const newEvents = removeTaskEvents(taskId, events);
-        setEvents(scheduleTaskEvents(taskId, constraints[taskId], newEvents, new Date()));
+        setEvents(scheduleTaskEvents(taskId, constraints[taskId], newEvents, curDate));
     }, [events, constraints]);
-
-    const curTime = useMemo(() => new Date(), []); // TODO update time!!
 
     const MainTabs = (props: any) => (
         <Tab.Navigator screenOptions={({ route }) => ({
@@ -115,7 +115,7 @@ function App(): JSX.Element {
               )})}>
             <Tab.Screen name="WeekCalendar" options={{title: 'Events'}}>
                 {(props) => <WeekCalendar {...props} onEventCreate={handleEventCreate}
-                    week={curWeek} curTime={curTime} getDayEvents={getDayEvents} tasks={tasks} />}
+                    week={curWeek} curTime={curDate} getDayEvents={getDayEvents} tasks={tasks} />}
             </Tab.Screen>
             <Tab.Screen name="TaskList" options={{title: 'Tasks'}}>
                 {(props) => <TaskList {...props} tasks={tasks} constraints={constraints}
