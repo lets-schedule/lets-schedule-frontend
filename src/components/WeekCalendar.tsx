@@ -1,15 +1,17 @@
-import React, { useMemo } from 'react';
+import { useIsFocused } from '@react-navigation/native';
+import React, { useCallback, useMemo } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
-import { FloatingButton, Text, View } from 'react-native-ui-lib';
-import { Event } from '../Model';
+import { FloatingButton, Text, TouchableOpacity, View } from 'react-native-ui-lib';
+import { Event, Task } from '../Model';
+import { categoryColors } from './CategoryPicker';
 import { dayLetters, HourToString } from './Util';
 
 const hourHeight = 70;
 const hours = [...Array(24).keys()];
 
-export default function WeekCalendar(props: any) {
-    const {navigation, getDayEvents, onEventCreate, week, curTime, ...others}:
-        {navigation: any, getDayEvents: (date: Date) => Event[],
+export default React.memo(function(props: any) {
+    const {navigation, getDayEvents, tasks, onEventCreate, week, curTime, ...others}:
+        {navigation: any, getDayEvents: (date: Date) => Event[], tasks: Record<number, Task>,
             onEventCreate: () => number, week: Date, curTime: Date} = props;
 
     const button = useMemo(() => {
@@ -29,6 +31,8 @@ export default function WeekCalendar(props: any) {
     const dayEvents: Event[][] = useMemo(() =>
         dates.map((date, i) => getDayEvents(date)), [dates, getDayEvents]);
 
+    if (!useIsFocused())
+        return <></>
     return (
         <View>
             <View style={{flexDirection: 'row', height: 50}}>
@@ -42,13 +46,14 @@ export default function WeekCalendar(props: any) {
                 <View style={{flexDirection: 'row'}}>
                     <TimeColumn />
                     { dayLetters.map((label, i) =>
-                        <DayColumn key={i} date={dates[i]} curTime={curTime} events={dayEvents[i]} />) }
+                        <DayColumn key={i} date={dates[i]} curTime={curTime}
+                            events={dayEvents[i]} tasks={tasks} navigation={navigation} />) }
                 </View>
             </ScrollView>
             <FloatingButton visible={true} button={button} />
         </View>
     );
-}
+});
 
 function DayHeader(props: any) {
     return (
@@ -65,7 +70,9 @@ function DayColumn(props: any) {
             <HourSpace />
             {props.curTime.getDate() == props.date.getDate() ?
                 <TimeMarker date={new Date()} /> : <></> }
-            {props.events.map((event, i) => <WeekEvent value={event} />)}
+            {props.events.map((event: Event, i: number) =>
+                <WeekEvent event={event} task={props.tasks[event.taskId]}
+                navigation={props.navigation} />)}
             {hours.map((hour, i) =>
                 <>
                     <HourDivider />
@@ -103,12 +110,17 @@ function HourSpace(props: any) {
 }
 
 function WeekEvent(props: any) {
-    const {value} : {value: Event} = props;
+    const {event, task, navigation} : {event: Event, task: Task, navigation: any} = props;
     const height = useMemo(() =>
-        getTimeHeight(value.endTime.getTime() - value.startTime.getTime()), []);
+        getTimeHeight(event.endTime.getTime() - event.startTime.getTime()), []);
+    const onPress = useCallback(() =>
+        navigation.navigate("EditFixedEvent", { eventId: event.id }), [event]);
     return (
-        <View style={{zIndex: 1, top: getTimeOffset(value.startTime),
-            height: height, marginBottom: -height, backgroundColor: '#00FF00'}} />
+        <TouchableOpacity style={{zIndex: 1, top: getTimeOffset(event.startTime),
+            height: height, marginBottom: -height, backgroundColor: categoryColors[task.category]}}
+            onPress={onPress}>
+            <Text>{task.title}</Text>
+        </TouchableOpacity>
     )
 }
 

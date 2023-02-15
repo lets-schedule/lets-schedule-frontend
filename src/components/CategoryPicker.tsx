@@ -2,7 +2,7 @@ import React, {useCallback} from 'react';
 import {View, ColorPalette, Colors, Text} from 'react-native-ui-lib';
 import {commStyles} from './Util';
 
-const categoryColors =
+export const categoryColors =
     ['#fff', Colors.red30, Colors.yellow30, Colors.green30, Colors.purple30, Colors.grey30];
 
 export default React.memo(function(props: any) {

@@ -1,12 +1,13 @@
+import { useIsFocused } from '@react-navigation/native';
 import React, {useCallback, useMemo} from 'react';
 import { FlatList } from 'react-native';
 import { Colors, Drawer, FloatingButton, ListItem, Text, View } from 'react-native-ui-lib';
-import { Task } from '../Model';
+import { Constraint, Task } from '../Model';
 import { commStyles } from './Util';
 
 export default React.memo(function(props: any) {
-    const {navigation, tasks, onTaskCreate, onTaskDelete, ...others}:
-        {navigation: any, tasks: Record<number, Task>,
+    const {navigation, tasks, constraints, onTaskCreate, onTaskDelete, ...others}:
+        {navigation: any, tasks: Record<number, Task>, constraints: Record<number, Constraint>,
             onTaskCreate: () => number, onTaskDelete: (t: Task) => void} = props;
 
     const renderTask = useCallback(({item, index} : {item: Task, index: number}) => {
@@ -21,6 +22,9 @@ export default React.memo(function(props: any) {
                 </ListItem>
             </Drawer>
         )}, [onTaskDelete]);
+    
+    const taskList = useMemo(() => Object.values(tasks).filter((task: Task) =>
+        task.id in constraints), [tasks, constraints]);
 
     const button = useMemo(() => {
         return {
@@ -31,9 +35,11 @@ export default React.memo(function(props: any) {
             },
         }}, [onTaskCreate]);
 
+    if (!useIsFocused())
+        return <></>
     return (
         <View {...others} style={commStyles.expand}>
-            <FlatList data={Object.values(tasks)} renderItem={renderTask} keyExtractor={taskKeyExtractor} />
+            <FlatList data={taskList} renderItem={renderTask} keyExtractor={taskKeyExtractor} />
             <FloatingButton
                 visible={true}
                 button={button}

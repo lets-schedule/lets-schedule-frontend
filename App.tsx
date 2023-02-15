@@ -30,17 +30,9 @@ function App(): JSX.Element {
         date.setHours(date.getHours() + 1);
         return date;
     }, [])
-    const [events, setEvents] = useState({
-        0: { id: 0, taskId: 0, startTime: new Date(), endTime: hourLater },
-    });
-    const [tasks, setTasks] = useState({
-        0: { id: 0, title: 'cool task', category: 0, priority: 2, createdTime: new Date() },
-        1: { id: 1, title: 'task 2', category: 0, priority: 2, createdTime: new Date() },
-    });
-    const [constraints, setConstraints] = useState({
-        0: {taskId: 0, dueTime: new Date(), duration: 1000 * 60 * 60 * 5},
-        1: {taskId: 1, dueTime: new Date(), duration: 1000 * 60 * 60},
-    });
+    const [events, setEvents] = useState({});
+    const [tasks, setTasks] = useState({});
+    const [constraints, setConstraints] = useState({});
 
     const curWeek = useMemo(() => {
         let date = new Date();
@@ -52,15 +44,20 @@ function App(): JSX.Element {
         const newTask: Task = {
             id: Math.floor(Math.random() * 1073741824), // 2 ^ 30
             title: 'New Event',
-            category: 0,
+            category: 1,
             priority: 2,
             createdTime: new Date()
         };
+        const startTime = new Date(new Date().getTime() + 1000 * 60 * 60);
+        startTime.setMinutes(0);
+        startTime.setSeconds(0);
+        startTime.setMilliseconds(0);
+        const endTime = new Date(startTime.getTime() + 1000 * 60 * 60);
         const newEvent: Event = {
             id: Math.floor(Math.random() * 1073741824), // 2 ^ 30
             taskId: newTask.id,
-            startTime: new Date(),
-            endTime: new Date(),
+            startTime: startTime,
+            endTime: endTime,
         };
         setTasks({...tasks, [newTask.id]: newTask});
         setEvents({...events, [newEvent.id]: newEvent});
@@ -114,10 +111,10 @@ function App(): JSX.Element {
               )})}>
             <Tab.Screen name="WeekCalendar" options={{title: 'Events'}}>
                 {(props) => <WeeklyCalendar {...props} onEventCreate={handleEventCreate}
-                    week={curWeek} curTime={new Date()} getDayEvents={getDayEvents} />}
+                    week={curWeek} curTime={new Date()} getDayEvents={getDayEvents} tasks={tasks} />}
             </Tab.Screen>
             <Tab.Screen name="TaskList" options={{title: 'Tasks'}}>
-                {(props) => <TaskList {...props} tasks={tasks}
+                {(props) => <TaskList {...props} tasks={tasks} constraints={constraints}
                         onTaskCreate={handleTaskCreate} onTaskDelete={handleTaskDelete} />}
             </Tab.Screen>
             <Tab.Screen name="Settings">
