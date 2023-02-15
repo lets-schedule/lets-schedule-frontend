@@ -16,6 +16,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import EditFixedEventPage from './src/components/EditFixedEventPage';
 import { removeTaskEvents, scheduleTaskEvents } from './src/AutoSchedule';
 import LoginPage from './src/components/LoginPage';
+import { TouchableOpacity } from 'react-native-ui-lib';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -138,7 +139,14 @@ function App(): JSX.Element {
                         tasks={tasks} constraints={constraints} onTaskChange={handleTaskChange}
                         onConstraintChange={handleConstraintChange} onComplete={handleAutoSchedule} />}
                 </Stack.Screen>
-                <Stack.Screen name="EditFixedEvent" options={{title: 'Edit Event'}}>
+                <Stack.Screen name="EditFixedEvent" options={{
+                        title: 'Edit Event',
+                        headerRight: () => (
+                            <TouchableOpacity>
+                                <MaterialCommunityIcons name='trash-can-outline' size={32}
+                                    color='#222222' />
+                            </TouchableOpacity>
+                        )}}>
                     {(props) => <EditFixedEventPage {...props}
                         events={events} onEventChange={handleEventChange}
                         tasks={tasks} onTaskChange={handleTaskChange} />}
