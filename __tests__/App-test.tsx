@@ -13,7 +13,7 @@ import renderer from 'react-test-renderer';
 jest.useFakeTimers();
 afterEach(cleanup);
 
-describe('<CategoryPicker />', () => {
+describe('App', () => {
   it('', () => {
     renderer.create(<App />);
   });
