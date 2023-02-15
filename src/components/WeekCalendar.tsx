@@ -21,7 +21,7 @@ export default React.memo(function(props: any) {
                 const eventId = onEventCreate();
                 navigation.navigate("EditFixedEvent", { eventId: eventId });
             }
-        }}, []);
+        }}, [navigation]);
     const dates: Date[] = useMemo(() =>
         [...Array(7)].map((e, i) => {
             var date = new Date(week);
@@ -30,20 +30,21 @@ export default React.memo(function(props: any) {
         }), [week]);
     const dayEvents: Event[][] = useMemo(() =>
         dates.map((date, i) => getDayEvents(date)), [dates, getDayEvents]);
+    const scrollOffset = useMemo(() => {return {x: 0, y: 9 * hourHeight}}, []);
 
     if (!useIsFocused())
         return <></>
     return (
         <View style={commStyles.expand} >
-            <View style={{flexDirection: 'row', height: 50}}>
+            <View style={styles.header}>
                 <DayHeader day='' date='' />
                 {dayLetters.map((label, i) =>
                     <DayHeader key={i} day={label} dateNum={dates[i].getDate()} />
                 )}
             </View>
-            <HourDivider />
-            <ScrollView style={commStyles.expand} contentOffset={{x: 0, y: 9 * hourHeight}}>
-                <View style={{flexDirection: 'row'}}>
+            <View style={styles.hourDivider} />
+            <ScrollView style={commStyles.expand} contentOffset={scrollOffset}>
+                <View style={commStyles.hBox}>
                     <TimeColumn />
                     { dayLetters.map((label, i) =>
                         <DayColumn key={i} date={dates[i]} curTime={curTime}
@@ -56,29 +57,30 @@ export default React.memo(function(props: any) {
 });
 
 function DayHeader(props: any) {
+    const {day, dateNum} = props;
     return (
         <View style={styles.dayColumn}>
-            <Text style={{textAlign: 'center'}}>{props.day}</Text>
-            <Text style={{textAlgin: 'center'}}>{props.dateNum}</Text>
+            <Text style={styles.dayLabel}>{day}</Text>
+            <Text style={styles.dayLabel}>{dateNum}</Text>
         </View>
     )
 }
 
 function DayColumn(props: any) {
+    const {curTime, date, events, tasks, navigation} = props;
     return (
         <View style={styles.dayColumn}>
-            <HourSpace />
-            {props.curTime.getDate() == props.date.getDate() ?
-                <TimeMarker date={new Date()} /> : <></> }
-            {props.events.map((event: Event, i: number) =>
-                <WeekEvent event={event} task={props.tasks[event.taskId]}
-                navigation={props.navigation} />)}
-            {hours.map((hour, i) =>
+            <View style={styles.hourSpace} />
+            { curTime.getDate() == date.getDate() ?
+                <TimeMarker date={curTime} /> : <></> }
+            { events.map((event: Event, i: number) =>
+                <WeekEvent event={event} task={tasks[event.taskId]} navigation={navigation} />) }
+            { hours.map((hour, i) =>
                 <>
-                    <HourDivider />
-                    <HourSpace />
+                    <View style={styles.hourDivider} />
+                    <View style={styles.hourSpace} />
                 </>
-            )}
+            ) }
         </View>
     );
 }
@@ -86,49 +88,48 @@ function DayColumn(props: any) {
 function TimeColumn(props: any) {
     return (
         <View style={styles.dayColumn}>
-            <HourSpace />
+            <View style={styles.hourSpace} />
             {hours.map((hour, i) =>
                 <>
-                    <Text style={{height: 20, marginTop: -10, marginBottom: -10, textAlign: 'right'}}>{hourToString(hour) + ' '}</Text>
-                    <HourSpace />
+                    <Text style={styles.hourLabel}>{hourToString(hour) + ' '}</Text>
+                    <View style={styles.hourSpace} />
                 </>
             )}
         </View>
     )
 }
 
-function HourDivider(props: any) {
-    return (
-        <View style={{height: 1, marginTop: -1, backgroundColor: '#888888'}} />
-    )
-}
-
-function HourSpace(props: any) {
-    return (
-        <View style={{height: hourHeight}} />
-    )
-}
-
 function WeekEvent(props: any) {
     const {event, task, navigation} : {event: Event, task: Task, navigation: any} = props;
     const height = useMemo(() =>
-        getTimeHeight(event.endTime.getTime() - event.startTime.getTime()), []);
+        getTimeHeight(event.endTime.getTime() - event.startTime.getTime()), [event]);
+    const style = useMemo(() => { return {
+        zIndex: 1,
+        top: getTimeOffset(event.startTime),
+        height: height,
+        marginBottom: -height,
+        backgroundColor: categoryColors[task.category],
+    }}, [event, task, height]);
     const onPress = useCallback(() =>
         navigation.navigate("EditFixedEvent", { eventId: event.id }), [event]);
     return (
-        <TouchableOpacity style={{zIndex: 1, top: getTimeOffset(event.startTime),
-            height: height, marginBottom: -height, backgroundColor: categoryColors[task.category]}}
-            onPress={onPress}>
+        <TouchableOpacity style={style} onPress={onPress}>
             <Text>{task.title}</Text>
         </TouchableOpacity>
     )
 }
 
 function TimeMarker(props: any) {
-    return (
-        <View style={{zIndex: 2, top: getTimeOffset(props.date),
-            height: 2, marginTop: -1, marginBottom: -1, backgroundColor: '#0000FF'}} />
-    );
+    const {date} = props;
+    const style = useMemo(() => { return {
+        zIndex: 2,
+        top: getTimeOffset(date),
+        height: 2,
+        marginTop: -1,
+        marginBottom: -1,
+        backgroundColor: '#0000FF',
+    }}, [date])
+    return <View style={style} />;
 }
 
 function getTimeOffset(date: Date) {
@@ -141,5 +142,10 @@ function getTimeHeight(diff: number) {
 }
 
 const styles = StyleSheet.create({
+    header: {flexDirection: 'row', height: 50},
     dayColumn: {flex: 1, borderRightWidth: 1, borderRightColor: '#888888'},
+    dayLabel: {textAlign: 'center'},
+    hourDivider: {height: 1, marginTop: -1, backgroundColor: '#888888'},
+    hourSpace: {height: hourHeight},
+    hourLabel: {height: 20, marginTop: -10, marginBottom: -10, textAlign: 'right'},
 })

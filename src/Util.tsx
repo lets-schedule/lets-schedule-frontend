@@ -13,6 +13,13 @@ export function hourToString(hour: number) {
     return hour12 + (hour >= 12 ? ' PM' : ' AM');
 }
 
+export function startOfHour(date: Date) {
+    date.setMinutes(0);
+    date.setSeconds(0);
+    date.setMilliseconds(0);
+    return date;
+}
+
 export const commStyles = StyleSheet.create({
     hBox: {flexDirection: 'row'},
     vBox: {flexDirection: 'column'},

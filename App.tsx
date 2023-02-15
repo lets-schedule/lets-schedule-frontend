@@ -8,7 +8,7 @@ import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 import TaskList from './src/components/TaskList';
 import { Event, Constraint, Task } from './src/Model';
-import { mergeState, randomId } from './src/Util';
+import { mergeState, randomId, startOfHour } from './src/Util';
 import EditAutoTaskPage from './src/components/EditAutoTaskPage';
 import WeeklyCalendar from './src/components/WeekCalendar';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -29,11 +29,6 @@ function App(): JSX.Element {
         backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
     };
 
-    const hourLater = useMemo(() => {
-        let date = new Date();
-        date.setHours(date.getHours() + 1);
-        return date;
-    }, [])
     const [events, setEvents] = useState({});
     const [tasks, setTasks] = useState({});
     const [constraints, setConstraints] = useState({});
@@ -52,10 +47,7 @@ function App(): JSX.Element {
             priority: 2,
             createdTime: new Date()
         };
-        const startTime = new Date(new Date().getTime() + 1000 * 60 * 60);
-        startTime.setMinutes(0);
-        startTime.setSeconds(0);
-        startTime.setMilliseconds(0);
+        const startTime = startOfHour(new Date(new Date().getTime() + 1000 * 60 * 60));
         const endTime = new Date(startTime.getTime() + 1000 * 60 * 60);
         const newEvent: Event = {
             id: randomId(),
@@ -73,13 +65,13 @@ function App(): JSX.Element {
         const newTask: Task = {
             id: randomId(),
             title: 'New Task',
-            category: 0,
+            category: 3,
             priority: 2,
-            createdTime: new Date()
+            createdTime: new Date(),
         };
         const newConstraint: Constraint = {
             taskId: newTask.id,
-            dueTime: new Date(),
+            dueTime: startOfHour(new Date(new Date().getTime() + 1000 * 60 * 60)),
             duration: 1000 * 60 * 60,
         };
         setTasks({...tasks, [newTask.id]: newTask});
@@ -105,6 +97,8 @@ function App(): JSX.Element {
         setEvents(scheduleTaskEvents(taskId, constraints[taskId], newEvents, new Date()));
     }, [events, constraints]);
 
+    const curTime = useMemo(() => new Date(), []); // TODO update time!!
+
     const MainTabs = (props: any) => (
         <Tab.Navigator screenOptions={({ route }) => ({
             tabBarIcon: ({ color, size }) => (
@@ -120,7 +114,7 @@ function App(): JSX.Element {
               )})}>
             <Tab.Screen name="WeekCalendar" options={{title: 'Events'}}>
                 {(props) => <WeeklyCalendar {...props} onEventCreate={handleEventCreate}
-                    week={curWeek} curTime={new Date()} getDayEvents={getDayEvents} tasks={tasks} />}
+                    week={curWeek} curTime={curTime} getDayEvents={getDayEvents} tasks={tasks} />}
             </Tab.Screen>
             <Tab.Screen name="TaskList" options={{title: 'Tasks'}}>
                 {(props) => <TaskList {...props} tasks={tasks} constraints={constraints}
