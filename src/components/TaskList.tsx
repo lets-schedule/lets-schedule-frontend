@@ -3,7 +3,7 @@ import React, {useCallback, useMemo} from 'react';
 import { FlatList } from 'react-native';
 import { Colors, Drawer, FloatingButton, ListItem, Text, View } from 'react-native-ui-lib';
 import { Constraint, Task } from '../Model';
-import { commStyles } from './Util';
+import { commStyles } from '../Util';
 
 export default React.memo(function(props: any) {
     const {navigation, tasks, constraints, onTaskCreate, onTaskDelete, ...others}:

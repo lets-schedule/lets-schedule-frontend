@@ -4,7 +4,7 @@ import { ScrollView, StyleSheet } from 'react-native';
 import { FloatingButton, Text, TouchableOpacity, View } from 'react-native-ui-lib';
 import { Event, Task } from '../Model';
 import { categoryColors } from './CategoryPicker';
-import { commStyles, dayLetters, HourToString } from './Util';
+import { commStyles, dayLetters, hourToString } from '../Util';
 
 const hourHeight = 70;
 const hours = [...Array(24).keys()];
@@ -89,7 +89,7 @@ function TimeColumn(props: any) {
             <HourSpace />
             {hours.map((hour, i) =>
                 <>
-                    <Text style={{height: 20, marginTop: -10, marginBottom: -10, textAlign: 'right'}}>{HourToString(hour) + ' '}</Text>
+                    <Text style={{height: 20, marginTop: -10, marginBottom: -10, textAlign: 'right'}}>{hourToString(hour) + ' '}</Text>
                     <HourSpace />
                 </>
             )}

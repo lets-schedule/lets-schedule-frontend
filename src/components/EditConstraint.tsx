@@ -2,7 +2,7 @@ import React, {useCallback} from 'react';
 import { NumberInput, NumberInputData, View } from 'react-native-ui-lib';
 import { Constraint } from '../Model';
 import DateAndTime from './DateAndTime';
-import { commStyles } from './Util';
+import { commStyles } from '../Util';
 
 const HOUR_MILLIS = 1000 * 60 * 60;
 

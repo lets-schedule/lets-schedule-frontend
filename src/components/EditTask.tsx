@@ -2,7 +2,7 @@ import React, {useCallback} from 'react';
 import { SegmentedControl, Text, TextField, View } from 'react-native-ui-lib';
 import { Task } from '../Model';
 import CategoryPicker from './CategoryPicker';
-import { commStyles } from './Util';
+import { commStyles } from '../Util';
 
 export default React.memo(function(props: any) {
     const {value, onChange, ...others}:

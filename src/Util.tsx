@@ -1,8 +1,12 @@
 import {StyleSheet} from 'react-native';
 
+export function randomId() {
+    return Math.floor(Math.random() * 1073741824); // 2 ^ 30
+}
+
 export const dayLetters = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
-export function HourToString(hour: number) {
+export function hourToString(hour: number) {
     var hour12 = hour % 12;
     if (hour12 == 0)
         hour12 = 12;

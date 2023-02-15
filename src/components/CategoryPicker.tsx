@@ -1,6 +1,6 @@
 import React, {useCallback} from 'react';
 import {View, ColorPalette, Colors, Text} from 'react-native-ui-lib';
-import {commStyles} from './Util';
+import {commStyles} from '../Util';
 
 export const categoryColors =
     ['#fff', Colors.red30, Colors.yellow30, Colors.green30, Colors.purple30, Colors.grey30];

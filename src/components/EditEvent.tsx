@@ -1,7 +1,7 @@
 import React, {useCallback} from 'react';
 import { View } from 'react-native-ui-lib';
 import DateAndTime from './DateAndTime';
-import { commStyles } from './Util';
+import { commStyles } from '../Util';
 import { Event } from '../Model';
 
 export default React.memo(function(props: any) {

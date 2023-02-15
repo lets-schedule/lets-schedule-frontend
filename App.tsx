@@ -8,12 +8,13 @@ import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 import TaskList from './src/components/TaskList';
 import { Event, Constraint, Task } from './src/Model';
-import { mergeState } from './src/components/Util';
+import { mergeState, randomId } from './src/Util';
 import EditAutoTaskPage from './src/components/EditAutoTaskPage';
 import WeeklyCalendar from './src/components/WeekCalendar';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import EditFixedEventPage from './src/components/EditFixedEventPage';
+import { removeTaskEvents, scheduleTaskEvents } from './src/AutoSchedule';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -44,7 +45,7 @@ function App(): JSX.Element {
 
     const handleEventCreate = useCallback(() => {
         const newTask: Task = {
-            id: Math.floor(Math.random() * 1073741824), // 2 ^ 30
+            id: randomId(),
             title: 'New Event',
             category: 1,
             priority: 2,
@@ -56,7 +57,7 @@ function App(): JSX.Element {
         startTime.setMilliseconds(0);
         const endTime = new Date(startTime.getTime() + 1000 * 60 * 60);
         const newEvent: Event = {
-            id: Math.floor(Math.random() * 1073741824), // 2 ^ 30
+            id: randomId(),
             taskId: newTask.id,
             startTime: startTime,
             endTime: endTime,
@@ -69,7 +70,7 @@ function App(): JSX.Element {
         setEvents({...events, [e.id]: mergeState(events[e.id], e)}), [events]);
     const handleTaskCreate = useCallback(() => {
         const newTask: Task = {
-            id: Math.floor(Math.random() * 1073741824), // 2 ^ 30
+            id: randomId(),
             title: 'New Task',
             category: 0,
             priority: 2,
@@ -97,6 +98,11 @@ function App(): JSX.Element {
             value.startTime.getDate() == date.getDate()
             && value.startTime.getMonth() == date.getMonth()
             && value.startTime.getFullYear() == date.getFullYear()), [events]);
+    
+    const handleAutoSchedule = useCallback((taskId: number) => {
+        const newEvents = removeTaskEvents(taskId, events);
+        setEvents(scheduleTaskEvents(taskId, constraints[taskId], newEvents, new Date()));
+    }, [events, constraints]);
 
     const MainTabs = (props: any) => (
         <Tab.Navigator screenOptions={({ route }) => ({
@@ -132,7 +138,7 @@ function App(): JSX.Element {
                 <Stack.Screen name="EditAutoTask" options={{title: 'Edit Task'}}>
                     {(props) => <EditAutoTaskPage {...props}
                         tasks={tasks} constraints={constraints} onTaskChange={handleTaskChange}
-                        onConstraintChange={handleConstraintChange} />}
+                        onConstraintChange={handleConstraintChange} onComplete={handleAutoSchedule} />}
                 </Stack.Screen>
                 <Stack.Screen name="EditFixedEvent" options={{title: 'Edit Event'}}>
                     {(props) => <EditFixedEventPage {...props}

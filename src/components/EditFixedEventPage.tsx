@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import {FloatingButton, Text, View} from 'react-native-ui-lib';
-import {commStyles, mergeStateAction} from './Util';
+import {commStyles, mergeStateAction} from '../Util';
 import EditRepeatSettings from './EditRepeatSettings';
 import {Event, Task, RepeatSettings} from '../Model'
 import EditTask from './EditTask';

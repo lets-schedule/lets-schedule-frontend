@@ -1,7 +1,7 @@
 import React, {useCallback} from 'react';
 import {StyleSheet} from 'react-native';
 import {Checkbox, RadioGroup, RadioButton, View} from 'react-native-ui-lib';
-import {commStyles, dayLetters} from './Util';
+import {commStyles, dayLetters} from '../Util';
 import DateAndTime from './DateAndTime';
 import {RepeatSettings} from '../Model';
 
