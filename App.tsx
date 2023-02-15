@@ -80,7 +80,8 @@ function App(): JSX.Element {
     }, [tasks, constraints]);
     const handleTaskDelete = useCallback((item: Task) => {
         setTasks((({[item.id]: _, ...rest}) => rest)(tasks));
-    }, [tasks]);
+        setEvents(removeTaskEvents(item.id, events));
+    }, [tasks, events]);
     const handleTaskChange = useCallback((t: any) =>
         setTasks({...tasks, [t.id]: mergeState(tasks[t.id], t)}), [tasks]);
     const handleConstraintChange = useCallback((c: any) =>
@@ -129,7 +130,8 @@ function App(): JSX.Element {
     return (
         <NavigationContainer>
             <Stack.Navigator initialRouteName="Login">
-                <Stack.Screen name="Login" component={LoginPage} options={{title: 'Log In'}} />
+                <Stack.Screen name="Login" component={LoginPage}
+                    options={{title: "Let's Schedule"}} />
                 <Stack.Screen name="MainTabs" component={MainTabs} options={{headerShown: false}} />
                 <Stack.Screen name="EditAutoTask" options={{title: 'Edit Task'}}>
                     {(props) => <EditAutoTaskPage {...props}
