@@ -1,6 +1,8 @@
 import { Constraint, Event, Task } from "./Model";
 import { randomId } from "./Util";
 
+const switchTime = 10 * 60 * 1000;
+
 export function removeTaskEvents(taskId: number, events: Record<number, Event>)
         : Record<number, Event> {
     return Object.keys(events).filter((key: number) => (events[key].taskId != taskId))
@@ -35,21 +37,13 @@ export function scheduleTaskEvents(taskId: number, constraint: Constraint,
     return events;
 }
 
-function isBusy(time: Date, events: Record<number, Event>) {
-    for (let id in events) {
-        if (overlapping(time, events[id]))
-            return true;
-    }
-    return false;
-}
-
 function nextFreeTime(time: Date, events: Record<number, Event>) {
     let overlappedEvent = true;
     while (overlappedEvent) {
         overlappedEvent = false;
         Object.values(events).forEach((event: Event, index: number) => {
             if (overlapping(time, event)) {
-                time = event.endTime;
+                time = new Date(event.endTime.getTime() + switchTime);
                 overlappedEvent = true;
             }
         })
@@ -60,16 +54,15 @@ function nextFreeTime(time: Date, events: Record<number, Event>) {
 function nextBusyTime(time: Date, events: Record<number, Event>) {
     let nextTime: (Date | null) = null;
     for (let id in events) {
-        const startTime = events[id].startTime;
-        if (startTime.getTime() > time.getTime()
-                && (nextTime === null || startTime.getTime() < nextTime.getTime())) {
-            nextTime = startTime;
+        const startTime = events[id].startTime.getTime() - switchTime;
+        if (startTime > time.getTime() && (nextTime === null || startTime < nextTime.getTime())) {
+            nextTime = new Date(startTime);
         }
     }
     return nextTime;
 }
 
 function overlapping(time: Date, event: Event) {
-    return time.getTime() >= event.startTime.getTime()
-        && time.getTime() < event.endTime.getTime()
+    return time.getTime() >= event.startTime.getTime() - switchTime
+        && time.getTime() < event.endTime.getTime() + switchTime
 }
