@@ -25,3 +25,8 @@ Directory Structure:
 - Refer to [React Native Testing Library](https://callstack.github.io/react-native-testing-library/)
 - Run all test with `$ npm test`
 - New tests should be added to `__tests__` directory
+
+### Build a Release
+- Go to `android` directory by executing `$ cd android`
+- Execute `$ ./gradlew bundleRelease`
+- Refer to [official documentation](https://reactnative.dev/docs/signed-apk-android#generating-the-release-aab)
