@@ -9,6 +9,8 @@ Directory Structure:
 - `ios/`: iOS native code
 - `.bundle/`: Ruby Bundle configuration (for CocoaPods)
 - `package.json`: npm dependencies for the app
+- `src/components`: component's code files
+- `App.tsx`: the main entry point of the application
 - Root: Configuration files for React, Node, NPM, Ruby, Typescript, linters
 
 ### Required Source Code
