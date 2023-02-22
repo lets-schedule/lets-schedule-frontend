@@ -20,6 +20,7 @@ import { TouchableOpacity } from 'react-native-ui-lib';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+const url = "https://localhost:3000/";
 
 const curDate = new Date(); // TODO: update time!!
 
@@ -60,10 +61,37 @@ function App(): JSX.Element {
         };
         setTasks({...tasks, [newTask.id]: newTask});
         setEvents({...events, [newEvent.id]: newEvent});
+        fetch(url + 'tasks/' + newTask.id, {
+          method: 'POST',
+          headers: {
+            Accpet: 'application/json',
+            'Content-Type:': 'application/json',
+          },
+          body: JSON.stringify(newTask),
+        });
+        fetch(url + 'events/' + newEvent.id, {
+          method: 'POST',
+          headers: {
+            Accpet: 'application/json',
+            'Content-Type:': 'application/json',
+          },
+          body: JSON.stringify(newEvent),
+        });
         return newEvent.id;
     }, [events])
-    const handleEventChange = useCallback((e: any) =>
-        setEvents({...events, [e.id]: mergeState(events[e.id], e)}), [events]);
+
+    const handleEventChange = useCallback((e: any) => {
+        setEvents({...events, [e.id]: mergeState(events[e.id], e)});
+        fetch(url + 'events/' + e.id, {
+          method: 'PATCH',
+          headers: {
+            Accpet: 'application/json',
+            'Content-Type:': 'application/json',
+          },
+          body: JSON.stringify(e),
+        });
+    }, [events]);
+
     const handleTaskCreate = useCallback(() => {
         const newTask: Task = {
             id: randomId(),
@@ -79,16 +107,61 @@ function App(): JSX.Element {
         };
         setTasks({...tasks, [newTask.id]: newTask});
         setConstraints({...constraints, [newConstraint.taskId]: newConstraint});
+        fetch(url + 'tasks/' + newTask.id, {
+          method: 'POST',
+          headers: {
+            Accpet: 'application/json',
+            'Content-Type:': 'application/json',
+          },
+          body: JSON.stringify(newTask),
+        });
+        fetch(url + 'constraints/' + newConstraint.taskId, {
+          method: 'POST',
+          headers: {
+            Accpet: 'application/json',
+            'Content-Type:': 'application/json',
+          },
+          body: JSON.stringify(newConstraint),
+        });
         return newTask.id;
     }, [tasks, constraints]);
+
     const handleTaskDelete = useCallback((item: Task) => {
         setTasks((({[item.id]: _, ...rest}) => rest)(tasks));
         setEvents(removeTaskEvents(item.id, events));
+        fetch(url + 'tasks/' + item.id, {
+          method: 'DELETE',
+          headers: {
+            Accpet: 'application/json',
+            'Content-Type:': 'application/json',
+          },
+          body: JSON.stringify(item),
+        });
     }, [tasks, events]);
-    const handleTaskChange = useCallback((t: any) =>
-        setTasks({...tasks, [t.id]: mergeState(tasks[t.id], t)}), [tasks]);
-    const handleConstraintChange = useCallback((c: any) =>
-        setConstraints({...constraints, [c.taskId]: mergeState(constraints[c.taskId], c)}), [constraints]);
+
+    const handleTaskChange = useCallback((t: any) => {
+        setTasks({...tasks, [t.id]: mergeState(tasks[t.id], t)});
+        fetch(url + 'tasks/' + t.id, {
+          method: 'PATCH',
+          headers: {
+            Accpet: 'application/json',
+            'Content-Type:': 'application/json',
+          },
+          body: JSON.stringify(t),
+        });
+    }, [tasks]);
+
+    const handleConstraintChange = useCallback((c: any) => {
+        setConstraints({...constraints, [c.taskId]: mergeState(constraints[c.taskId], c)});
+        fetch(url + 'constraints/' + c.taskId, {
+          method: 'PATCH',
+          headers: {
+            Accpet: 'application/json',
+            'Content-Type:': 'application/json',
+          },
+          body: JSON.stringify(c),
+        });
+    }, [constraints]);
 
     const getDayEvents = useCallback((date: Date) =>
         Object.values(events).filter((value: Event) =>
