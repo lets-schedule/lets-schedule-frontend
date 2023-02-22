@@ -16,6 +16,10 @@ Directory Structure:
 ### Required Source Code
 - Access the _Let's Schedule Backend_ [here](https://github.com/lets-schedule/lets-schedule-backend)
 
+### User documentation
+
+Instructions for installation and app usage are available on [the wiki](https://github.com/lets-schedule/lets-schedule-frontend/wiki).
+
 ### Software Building
 - Download and install react native as well as Node, JDK, Android Studio, and Android SDK as described [here](https://reactnative.dev/docs/environment-setup)
 - Execute `$ npm install` command to download and install all dependencies
