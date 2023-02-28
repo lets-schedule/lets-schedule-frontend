@@ -13,8 +13,8 @@ export default React.memo(function(props: any) {
     return (
         <View {...others} style={commStyles.hBox}>
             <Text style={commStyles.padded}>Category:</Text>
-            <ColorPalette style={{backgroundColor: '#f2f2f2'}} colors={categoryColors} value={categoryColors[value]}
-                onValueChange={handleValueChange} />
+            <ColorPalette style={{backgroundColor: '#f2f2f2'}} colors={categoryColors}
+                value={categoryColors[value]} onValueChange={handleValueChange} />
         </View>
     );
 });
