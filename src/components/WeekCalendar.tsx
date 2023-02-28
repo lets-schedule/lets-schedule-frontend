@@ -85,7 +85,7 @@ function DayColumn(props: any) {
             { curTime.getDate() == date.getDate() ?
                 <TimeMarker date={curTime} /> : <></> }
             { events.map((event: Event, i: number) =>
-                <WeekEvent event={event} task={tasks[event.taskId]} navigation={navigation} />) }
+                <WeekEvent event={event} task={tasks[event.task_id]} navigation={navigation} />) }
             { hours.map((hour, i) =>
                 <>
                     <View style={styles.hourDivider} />

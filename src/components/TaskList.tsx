@@ -12,7 +12,7 @@ export default React.memo(function(props: any) {
 
     const renderTask = useCallback(({item, index} : {item: Task, index: number}) => {
         const itemPressed = () => {
-            navigation.navigate("EditAutoTask", { taskId: item.id })
+            navigation.navigate("EditAutoTask", { task_id: item.id })
         };
         return (
             <Drawer leftItem={{text: 'Delete', background: Colors.red30,
@@ -32,8 +32,8 @@ export default React.memo(function(props: any) {
         return {
             label: 'Add Task',
             onPress: () => {
-                const taskId = onTaskCreate();
-                navigation.navigate("EditAutoTask", { taskId: taskId });
+                const task_id = onTaskCreate();
+                navigation.navigate("EditAutoTask", { task_id: task_id });
             },
         }}, [onTaskCreate]);
 

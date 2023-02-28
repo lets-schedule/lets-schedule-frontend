@@ -24,6 +24,8 @@ const url = "http://10.0.2.2:3000/";
 
 const curDate = new Date(); // TODO: update time!!
 
+const authToken = '';
+
 LogBox.ignoreAllLogs();
 
 function App(): JSX.Element {
@@ -49,13 +51,12 @@ function App(): JSX.Element {
             title: 'New Event',
             category: 0,
             priority: 2,
-            createdTime: new Date()
         };
         const startTime = startOfHour(new Date(curDate.getTime() + 1000 * 60 * 60));
         const endTime = new Date(startTime.getTime() + 1000 * 60 * 60);
         const newEvent: Event = {
             id: randomId(),
-            taskId: newTask.id,
+            task_id: newTask.id,
             startTime: startTime,
             endTime: endTime,
         };
@@ -100,15 +101,14 @@ function App(): JSX.Element {
             title: 'New Task',
             category: 2,
             priority: 2,
-            createdTime: new Date(),
         };
         const newConstraint: Constraint = {
-            taskId: newTask.id,
+            task_id: newTask.id,
             dueTime: startOfHour(new Date(curDate.getTime() + 1000 * 60 * 60)),
             duration: 1000 * 60 * 60,
         };
         setTasks({...tasks, [newTask.id]: newTask});
-        setConstraints({...constraints, [newConstraint.taskId]: newConstraint});
+        setConstraints({...constraints, [newConstraint.task_id]: newConstraint});
         fetch(url + 'tasks/' + newTask.id, {
           method: 'POST',
           headers: {
@@ -117,7 +117,7 @@ function App(): JSX.Element {
           },
           body: JSON.stringify(newTask),
         });
-        fetch(url + 'constraints/' + newConstraint.taskId, {
+        fetch(url + 'constraints/' + newConstraint.task_id, {
           method: 'POST',
           headers: {
             Accept: 'application/json',
@@ -154,8 +154,8 @@ function App(): JSX.Element {
     }, [tasks]);
 
     const handleConstraintChange = useCallback((c: any) => {
-        setConstraints({...constraints, [c.taskId]: mergeState(constraints[c.taskId], c)});
-        fetch(url + 'constraints/' + c.taskId, {
+        setConstraints({...constraints, [c.task_id]: mergeState(constraints[c.task_id], c)});
+        fetch(url + 'constraints/' + c.task_id, {
           method: 'PATCH',
           headers: {
             Accept: 'application/json',
@@ -171,9 +171,9 @@ function App(): JSX.Element {
             && value.startTime.getMonth() == date.getMonth()
             && value.startTime.getFullYear() == date.getFullYear()), [events]);
 
-    const handleAutoSchedule = useCallback((taskId: number) => {
-        const newEvents = removeTaskEvents(taskId, events);
-        setEvents(scheduleTaskEvents(taskId, constraints[taskId], newEvents, curDate));
+    const handleAutoSchedule = useCallback((task_id: number) => {
+        const newEvents = removeTaskEvents(task_id, events);
+        setEvents(scheduleTaskEvents(task_id, constraints[task_id], newEvents, curDate));
     }, [events, constraints]);
 
     const MainTabs = (props: any) => (

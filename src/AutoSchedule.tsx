@@ -3,9 +3,9 @@ import { randomId } from "./Util";
 
 const switchTime = 10 * 60 * 1000;
 
-export function removeTaskEvents(taskId: number, events: Record<number, Event>)
+export function removeTaskEvents(task_id: number, events: Record<number, Event>)
         : Record<number, Event> {
-    return Object.keys(events).filter((key: number) => (events[key].taskId != taskId))
+    return Object.keys(events).filter((key: number) => (events[key].task_id != task_id))
         .reduce((obj: any, key: number) => {
             return {
                 ...obj,
@@ -14,7 +14,7 @@ export function removeTaskEvents(taskId: number, events: Record<number, Event>)
         }, {});
 }
 
-export function scheduleTaskEvents(taskId: number, constraint: Constraint,
+export function scheduleTaskEvents(task_id: number, constraint: Constraint,
         events: Record<number, Event>, curTime: Date) {
     let remainingDuration = constraint.duration;
     while (remainingDuration > 0) {
@@ -26,7 +26,7 @@ export function scheduleTaskEvents(taskId: number, constraint: Constraint,
         // add event...
         const newEvent: Event = {
             id: randomId(),
-            taskId: taskId,
+            task_id: task_id,
             startTime: start,
             endTime: end,
         }

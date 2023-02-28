@@ -6,19 +6,19 @@ import EditTask from './EditTask';
 import EditConstraint from './EditConstraint';
 
 export default React.memo(function({ route, navigation, ...props }: any) {
-    const {taskId} = route.params;
+    const {task_id} = route.params;
     const {tasks, onTaskChange, constraints, onConstraintChange, onComplete, ...others}: {
         tasks: Record<number, Task>, onTaskChange: (v: any) => void,
         constraints: Record<number, Constraint>, onConstraintChange: (v: any) => void,
-        onComplete: (taskId: number) => void,
+        onComplete: (task_id: number) => void,
         others: any} = props;
 
-    const task = useMemo(() => tasks[taskId], [tasks, taskId]);
-    const constraint = useMemo(() => constraints[taskId], [constraints, taskId]);
+    const task = useMemo(() => tasks[task_id], [tasks, task_id]);
+    const constraint = useMemo(() => constraints[task_id], [constraints, task_id]);
     const button = useMemo(() => {
         return {
             label: 'Done',
-            onPress: () => {navigation.goBack(); onComplete(taskId)},
+            onPress: () => {navigation.goBack(); onComplete(task_id)},
         }}, [navigation, onComplete]);
 
     return (

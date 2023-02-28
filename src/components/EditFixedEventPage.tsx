@@ -15,7 +15,7 @@ export default React.memo(function ({ route, navigation, ...props }: any) {
         others: any} = props;
 
     const event = useMemo(() => events[eventId], [events, eventId]);
-    const task = useMemo(() => tasks[event.taskId], [tasks, event]);
+    const task = useMemo(() => tasks[event.task_id], [tasks, event]);
     const [repeat, setRepeat] = useState({
         repeat: false, until: event.endTime,
         days: [true, true, true, true, true, true, true]
