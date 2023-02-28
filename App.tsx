@@ -20,7 +20,7 @@ import { TouchableOpacity } from 'react-native-ui-lib';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
-const url = "https://localhost:3000/";
+const url = "http://10.0.2.2:3000/";
 
 const curDate = new Date(); // TODO: update time!!
 
@@ -61,19 +61,21 @@ function App(): JSX.Element {
         };
         setTasks({...tasks, [newTask.id]: newTask});
         setEvents({...events, [newEvent.id]: newEvent});
-        fetch(url + 'tasks/' + newTask.id, {
+        fetch(url + 'task/' + newTask.id, {
           method: 'POST',
           headers: {
-            Accpet: 'application/json',
-            'Content-Type:': 'application/json',
+            Accept: 'application/json',
+            //Authorization: 'Bearer ',
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify(newTask),
         });
-        fetch(url + 'events/' + newEvent.id, {
+        fetch(url + 'tasks/' + newTask.id + '/events/' + newEvent.id, {
           method: 'POST',
           headers: {
-            Accpet: 'application/json',
-            'Content-Type:': 'application/json',
+            Accept: 'application/json',
+            //Authorization: 'Bearer ',
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify(newEvent),
         });
@@ -85,8 +87,8 @@ function App(): JSX.Element {
         fetch(url + 'events/' + e.id, {
           method: 'PATCH',
           headers: {
-            Accpet: 'application/json',
-            'Content-Type:': 'application/json',
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify(e),
         });
@@ -110,16 +112,16 @@ function App(): JSX.Element {
         fetch(url + 'tasks/' + newTask.id, {
           method: 'POST',
           headers: {
-            Accpet: 'application/json',
-            'Content-Type:': 'application/json',
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify(newTask),
         });
         fetch(url + 'constraints/' + newConstraint.taskId, {
           method: 'POST',
           headers: {
-            Accpet: 'application/json',
-            'Content-Type:': 'application/json',
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify(newConstraint),
         });
@@ -132,8 +134,8 @@ function App(): JSX.Element {
         fetch(url + 'tasks/' + item.id, {
           method: 'DELETE',
           headers: {
-            Accpet: 'application/json',
-            'Content-Type:': 'application/json',
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify(item),
         });
@@ -144,8 +146,8 @@ function App(): JSX.Element {
         fetch(url + 'tasks/' + t.id, {
           method: 'PATCH',
           headers: {
-            Accpet: 'application/json',
-            'Content-Type:': 'application/json',
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify(t),
         });
@@ -156,8 +158,8 @@ function App(): JSX.Element {
         fetch(url + 'constraints/' + c.taskId, {
           method: 'PATCH',
           headers: {
-            Accpet: 'application/json',
-            'Content-Type:': 'application/json',
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify(c),
         });
