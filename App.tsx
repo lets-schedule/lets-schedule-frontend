@@ -63,7 +63,7 @@ function App(): JSX.Element {
         return date;
     }, [])
 
-    const handleEventCreate = useCallback(() => {
+    const handleEventCreate = useCallback(async () => {
         const newTask: Task = {
             id: -1,
             title: 'New Event',
@@ -78,21 +78,18 @@ function App(): JSX.Element {
             startTime: startTime,
             endTime: endTime,
         };
-        return fetchBackend('POST', 'task', newTask)
-          .then((response) => response.json())
-          .then((data) => {
-            console.log('Create task response: ' + JSON.stringify(data));
-            newTask.id = newEvent.task_id = data.id;
-            return fetchBackend('POST', 'task/' + newTask.id + '/event', newEvent);
-          })
-          .then((response) => response.json())
-          .then((data) => {
-            console.log('Create event response: ' + JSON.stringify(data));
-            newEvent.id = data.id;
-            setTasks({...tasks, [newTask.id]: newTask});
-            setEvents({...events, [newEvent.id]: newEvent});
-            return newEvent.id;
-          });
+        const newTaskResponse = await fetchBackend('POST', 'task', newTask);
+        const newTaskData = await newTaskResponse.json();
+        console.log('Create task response: ' + JSON.stringify(newTaskData));
+        newTask.id = newEvent.task_id = newTaskData.id;
+        const newEventResponse = await fetchBackend('POST',
+          'task/' + newTask.id + '/event', newEvent);
+        const newEventData = await newEventResponse.json();
+        console.log('Create event response: ' + JSON.stringify(newEventData));
+        newEvent.id = newEventData.id;
+        setTasks({ ...tasks, [newTask.id]: newTask });
+        setEvents({ ...events, [newEvent.id]: newEvent });
+        return newEvent.id;
     }, [events])
 
     const handleEventChange = useCallback((e: any) => {
