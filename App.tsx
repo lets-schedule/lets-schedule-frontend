@@ -78,100 +78,73 @@ function App(): JSX.Element {
             startTime: startTime,
             endTime: endTime,
         };
+
         const newTaskResponse = await fetchBackend('POST', 'task', newTask);
         const newTaskData = await newTaskResponse.json();
         console.log('Create task response: ' + JSON.stringify(newTaskData));
         newTask.id = newEvent.task_id = newTaskData.id;
-        const newEventResponse = await fetchBackend('POST',
-          'task/' + newTask.id + '/event', newEvent);
+        setTasks({ ...tasks, [newTask.id]: newTask });
+
+        const newEventResponse = await fetchBackend('POST', `task/${newTask.id}/event`, newEvent);
         const newEventData = await newEventResponse.json();
         console.log('Create event response: ' + JSON.stringify(newEventData));
         newEvent.id = newEventData.id;
-        setTasks({ ...tasks, [newTask.id]: newTask });
         setEvents({ ...events, [newEvent.id]: newEvent });
+
         return newEvent.id;
     }, [events])
 
     const handleEventChange = useCallback((e: any) => {
         setEvents({...events, [e.id]: mergeState(events[e.id], e)});
-        fetch(serverUrl + 'events/' + e.id, {
-          method: 'PATCH',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(e),
-        });
+        fetchBackend('PATCH', `task/${e.task_id}/event/${e.id}`, e)
+          .then((response) => response.text())
+          .then((text) => console.log('Patch event response: ' + text));
     }, [events]);
 
-    const handleTaskCreate = useCallback(() => {
+    const handleTaskCreate = useCallback(async () => {
         const newTask: Task = {
-            id: randomId(),
+            id: -1,
             title: 'New Task',
             category: 2,
             priority: 2,
         };
         const newConstraint: Constraint = {
-            task_id: newTask.id,
+            task_id: -1,
             dueTime: startOfHour(new Date(curDate.getTime() + 1000 * 60 * 60)),
             duration: 1000 * 60 * 60,
         };
+        const newTaskResponse = await fetchBackend('POST', 'task', newTask);
+        const newTaskData = await newTaskResponse.json();
+        console.log('Create task response: ' + JSON.stringify(newTaskData));
+        newTask.id = newConstraint.task_id = newTaskData.id;
         setTasks({...tasks, [newTask.id]: newTask});
         setConstraints({...constraints, [newConstraint.task_id]: newConstraint});
-        fetch(serverUrl + 'tasks/' + newTask.id, {
-          method: 'POST',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(newTask),
-        });
-        fetch(serverUrl + 'constraints/' + newConstraint.task_id, {
-          method: 'POST',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(newConstraint),
-        });
+        fetchBackend('POST', `task/${newTask.id}/constraint`, newConstraint)
+          .then((response) => response.text())
+          .then((text) => console.log('Create constraint response: ' + text));
         return newTask.id;
     }, [tasks, constraints]);
 
     const handleTaskDelete = useCallback((item: Task) => {
         setTasks((({[item.id]: _, ...rest}) => rest)(tasks));
         setEvents(removeTaskEvents(item.id, events));
-        fetch(serverUrl + 'tasks/' + item.id, {
-          method: 'DELETE',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(item),
-        });
+        fetchBackend('DELETE', `task/${item.id}`, {})
+          .then((response) => response.text())
+          .then((text) => console.log('Delete task response: ' + text));
     }, [tasks, events]);
 
     const handleTaskChange = useCallback((t: any) => {
         setTasks({...tasks, [t.id]: mergeState(tasks[t.id], t)});
-        fetch(serverUrl + 'tasks/' + t.id, {
-          method: 'PATCH',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(t),
-        });
+        fetchBackend('PATCH', `task/${t.id}`, t)
+          .then((response) => response.text())
+          .then((text) => console.log('Patch task response: ' + text));
     }, [tasks]);
 
     const handleConstraintChange = useCallback((c: any) => {
         setConstraints({...constraints, [c.task_id]: mergeState(constraints[c.task_id], c)});
-        fetch(serverUrl + 'constraints/' + c.task_id, {
-          method: 'PATCH',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(c),
-        });
+        fetchBackend('PATCH', `task/${c.task_id}/constraint`, c)
+          .then((response) => response.text())
+          .then((text) => console.log('Patch constraint response: ' + text));
     }, [constraints]);
 
     const getDayEvents = useCallback((date: Date) =>

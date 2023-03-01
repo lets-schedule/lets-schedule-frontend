@@ -8,7 +8,7 @@ import { commStyles } from '../Util';
 export default React.memo(function(props: any) {
     const {navigation, tasks, constraints, onTaskCreate, onTaskDelete, ...others}:
         {navigation: any, tasks: Record<number, Task>, constraints: Record<number, Constraint>,
-            onTaskCreate: () => number, onTaskDelete: (t: Task) => void} = props;
+            onTaskCreate: () => Promise<number>, onTaskDelete: (t: Task) => void} = props;
 
     const renderTask = useCallback(({item, index} : {item: Task, index: number}) => {
         const itemPressed = () => {
@@ -32,8 +32,8 @@ export default React.memo(function(props: any) {
         return {
             label: 'Add Task',
             onPress: () => {
-                const task_id = onTaskCreate();
-                navigation.navigate("EditAutoTask", { task_id: task_id });
+                onTaskCreate().then((task_id: number) =>
+                    navigation.navigate("EditAutoTask", { task_id: task_id }));
             },
         }}, [onTaskCreate]);
 
