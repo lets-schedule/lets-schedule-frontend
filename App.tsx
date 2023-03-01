@@ -126,7 +126,8 @@ function App(): JSX.Element {
     }, [tasks, constraints]);
 
     const handleTaskDelete = useCallback((item: Task) => {
-        setTasks((({[item.id]: _, ...rest}) => rest)(tasks));
+        setTasks((({[item.id]: _, ...rest}: any) => rest)(tasks));
+        setConstraints((({[item.id]: _, ...rest}: any) => rest)(constraints))
         setEvents(removeTaskEvents(item.id, events));
         fetchBackend('DELETE', `task/${item.id}`, {})
           .then((response) => response.text())
@@ -155,6 +156,7 @@ function App(): JSX.Element {
 
     const handleAutoSchedule = useCallback((task_id: number) => {
         const newEvents = removeTaskEvents(task_id, events);
+        // TODO: REST API
         setEvents(scheduleTaskEvents(task_id, constraints[task_id], newEvents, curDate));
     }, [events, constraints]);
 
