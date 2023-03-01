@@ -16,7 +16,6 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import EditFixedEventPage from './src/components/EditFixedEventPage';
 import { removeTaskEvents, scheduleTaskEvents } from './src/AutoSchedule';
 import LoginPage from './src/components/LoginPage';
-import { TouchableOpacity } from 'react-native-ui-lib';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -53,9 +52,9 @@ function App(): JSX.Element {
         backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
     };
 
-    const [events, setEvents] = useState({});
-    const [tasks, setTasks] = useState({});
-    const [constraints, setConstraints] = useState({});
+    const [events, setEvents]: [Record<number, Event>, Function] = useState({});
+    const [tasks, setTasks]: [Record<number, Task>, Function] = useState({});
+    const [constraints, setConstraints]: [Record<number, Constraint>, Function] = useState({});
 
     const curWeek = useMemo(() => {
         let date = new Date(curDate);
@@ -93,6 +92,19 @@ function App(): JSX.Element {
 
         return newEvent.id;
     }, [events])
+
+    const handleEventDelete = useCallback((e: Event) => {
+        setEvents((({[e.id]: _, ...rest}: any) => rest)(events));
+        fetchBackend('DELETE', `task/${e.task_id}/event/${e.id}`, {})
+          .then((response) => response.text())
+          .then((text) => console.log('Delete event response: ' + text));
+        if (!(e.id in constraints)) { // not an auto-scheduled event
+            setTasks((({[e.task_id]: _, ...rest}: any) => rest)(tasks));
+            fetchBackend('DELETE', `task/${e.task_id}`, {})
+              .then((response) => response.text())
+              .then((text) => console.log('Delete task response: ' + text));
+        }
+    }, [tasks, events]);
 
     const handleEventChange = useCallback((e: any) => {
         setEvents({...events, [e.id]: mergeState(events[e.id], e)});
@@ -132,7 +144,7 @@ function App(): JSX.Element {
         fetchBackend('DELETE', `task/${item.id}`, {})
           .then((response) => response.text())
           .then((text) => console.log('Delete task response: ' + text));
-    }, [tasks, events]);
+    }, [tasks, events, constraints]);
 
     const handleTaskChange = useCallback((t: any) => {
         setTasks({...tasks, [t.id]: mergeState(tasks[t.id], t)});
@@ -198,16 +210,10 @@ function App(): JSX.Element {
                         tasks={tasks} constraints={constraints} onTaskChange={handleTaskChange}
                         onConstraintChange={handleConstraintChange} onComplete={handleAutoSchedule} />}
                 </Stack.Screen>
-                <Stack.Screen name="EditFixedEvent" options={{
-                        title: 'Edit Event',
-                        headerRight: () => (
-                            <TouchableOpacity>
-                                <MaterialCommunityIcons name='trash-can-outline' size={32}
-                                    color='#222222' />
-                            </TouchableOpacity>
-                        )}}>
+                <Stack.Screen name="EditFixedEvent" options={{title: 'Edit Event'}}>
                     {(props) => <EditFixedEventPage {...props}
                         events={events} onEventChange={handleEventChange}
+                        onEventDelete={handleEventDelete}
                         tasks={tasks} onTaskChange={handleTaskChange} />}
                 </Stack.Screen>
             </Stack.Navigator>

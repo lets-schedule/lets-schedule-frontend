@@ -10,14 +10,15 @@ export default React.memo(function(props: any) {
         const handleStartTimeChange = useCallback(
             (date: Date) => onChange({
                 id: value.id,
+                task_id: value.task_id,
                 startTime: date,
                 endTime: new Date(value.endTime.getTime()
                     + (date.getTime() - value.startTime.getTime())),
             }),
-            [onChange, value.id, value.startTime, value.endTime]);
+            [onChange, value.id, value.task_id, value.startTime, value.endTime]);
         const handleEndTimeChange = useCallback(
-            (date: Date) => onChange({id: value.id, endTime: date}),
-            [onChange, value.id]);
+            (date: Date) => onChange({id: value.id, task_id: value.task_id, endTime: date}),
+            [onChange, value.id, value.task_id]);
     return (
         <View style={commStyles.hBox}>
             <DateAndTime style={commStyles.expand} title='Start' value={value.startTime}
