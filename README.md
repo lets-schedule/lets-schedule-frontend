@@ -23,7 +23,7 @@ Instructions for installation and app usage are available on [the wiki](https://
 ### Software Building
 - Download and install react native as well as Node, JDK, Android Studio, and Android SDK as described [here](https://reactnative.dev/docs/environment-setup)
 - Execute `$ npm install` command to download and install all dependencies
-- Start with `$ npm start`
+- Start with `$ npx react-native start`
 
 ### Testing
 - Refer to [React Native Testing Library](https://callstack.github.io/react-native-testing-library/)
