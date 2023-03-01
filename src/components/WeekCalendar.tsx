@@ -13,14 +13,14 @@ const hours = [...Array(24).keys()];
 export default React.memo(function(props: any) {
     const {navigation, getDayEvents, tasks, onEventCreate, week, curTime, ...others}:
         {navigation: any, getDayEvents: (date: Date) => Event[], tasks: Record<number, Task>,
-            onEventCreate: () => number, week: Date, curTime: Date} = props;
+            onEventCreate: () => Promise<number>, week: Date, curTime: Date} = props;
 
     const button = useMemo(() => {
         return {
             label: 'Add Event',
             onPress: () => {
-                const eventId = onEventCreate();
-                navigation.navigate("EditFixedEvent", { eventId: eventId });
+                onEventCreate().then((eventId: number) =>
+                    navigation.navigate("EditFixedEvent", { eventId: eventId }));
             }
         }}, [navigation]);
     const dates: Date[] = useMemo(() =>

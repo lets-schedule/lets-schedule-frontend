@@ -20,13 +20,31 @@ import { TouchableOpacity } from 'react-native-ui-lib';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
-const url = "http://10.0.2.2:3000/";
+const serverUrl = "http://10.0.2.2:3000/";
 
 const curDate = new Date(); // TODO: update time!!
 
 const authToken = '';
 
 LogBox.ignoreAllLogs();
+const oldWarn = console.warn;
+console.warn = (...args) => {
+  if (args[0].startsWith('RNUILib TextField component will soon be replaced'))
+    return; // I don't care
+  oldWarn(...args);
+};
+
+function fetchBackend(method: string, path: string, bodyObj: object): Promise<Response> {
+  return fetch(serverUrl + path, {
+    method: method,
+    headers: {
+      Accept: 'application/json',
+      Authorization: 'Bearer ' + authToken,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(bodyObj),
+  });
+}
 
 function App(): JSX.Element {
     const isDarkMode = useColorScheme() === 'dark';
@@ -47,7 +65,7 @@ function App(): JSX.Element {
 
     const handleEventCreate = useCallback(() => {
         const newTask: Task = {
-            id: randomId(),
+            id: -1,
             title: 'New Event',
             category: 0,
             priority: 2,
@@ -55,37 +73,31 @@ function App(): JSX.Element {
         const startTime = startOfHour(new Date(curDate.getTime() + 1000 * 60 * 60));
         const endTime = new Date(startTime.getTime() + 1000 * 60 * 60);
         const newEvent: Event = {
-            id: randomId(),
-            task_id: newTask.id,
+            id: -1,
+            task_id: -1,
             startTime: startTime,
             endTime: endTime,
         };
-        setTasks({...tasks, [newTask.id]: newTask});
-        setEvents({...events, [newEvent.id]: newEvent});
-        fetch(url + 'task/' + newTask.id, {
-          method: 'POST',
-          headers: {
-            Accept: 'application/json',
-            //Authorization: 'Bearer ',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(newTask),
-        });
-        fetch(url + 'tasks/' + newTask.id + '/events/' + newEvent.id, {
-          method: 'POST',
-          headers: {
-            Accept: 'application/json',
-            //Authorization: 'Bearer ',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(newEvent),
-        });
-        return newEvent.id;
+        return fetchBackend('POST', 'task', newTask)
+          .then((response) => response.json())
+          .then((data) => {
+            console.log('Create task response: ' + JSON.stringify(data));
+            newTask.id = newEvent.task_id = data.id;
+            return fetchBackend('POST', 'task/' + newTask.id + '/event', newEvent);
+          })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log('Create event response: ' + JSON.stringify(data));
+            newEvent.id = data.id;
+            setTasks({...tasks, [newTask.id]: newTask});
+            setEvents({...events, [newEvent.id]: newEvent});
+            return newEvent.id;
+          });
     }, [events])
 
     const handleEventChange = useCallback((e: any) => {
         setEvents({...events, [e.id]: mergeState(events[e.id], e)});
-        fetch(url + 'events/' + e.id, {
+        fetch(serverUrl + 'events/' + e.id, {
           method: 'PATCH',
           headers: {
             Accept: 'application/json',
@@ -109,7 +121,7 @@ function App(): JSX.Element {
         };
         setTasks({...tasks, [newTask.id]: newTask});
         setConstraints({...constraints, [newConstraint.task_id]: newConstraint});
-        fetch(url + 'tasks/' + newTask.id, {
+        fetch(serverUrl + 'tasks/' + newTask.id, {
           method: 'POST',
           headers: {
             Accept: 'application/json',
@@ -117,7 +129,7 @@ function App(): JSX.Element {
           },
           body: JSON.stringify(newTask),
         });
-        fetch(url + 'constraints/' + newConstraint.task_id, {
+        fetch(serverUrl + 'constraints/' + newConstraint.task_id, {
           method: 'POST',
           headers: {
             Accept: 'application/json',
@@ -131,7 +143,7 @@ function App(): JSX.Element {
     const handleTaskDelete = useCallback((item: Task) => {
         setTasks((({[item.id]: _, ...rest}) => rest)(tasks));
         setEvents(removeTaskEvents(item.id, events));
-        fetch(url + 'tasks/' + item.id, {
+        fetch(serverUrl + 'tasks/' + item.id, {
           method: 'DELETE',
           headers: {
             Accept: 'application/json',
@@ -143,7 +155,7 @@ function App(): JSX.Element {
 
     const handleTaskChange = useCallback((t: any) => {
         setTasks({...tasks, [t.id]: mergeState(tasks[t.id], t)});
-        fetch(url + 'tasks/' + t.id, {
+        fetch(serverUrl + 'tasks/' + t.id, {
           method: 'PATCH',
           headers: {
             Accept: 'application/json',
@@ -155,7 +167,7 @@ function App(): JSX.Element {
 
     const handleConstraintChange = useCallback((c: any) => {
         setConstraints({...constraints, [c.task_id]: mergeState(constraints[c.task_id], c)});
-        fetch(url + 'constraints/' + c.task_id, {
+        fetch(serverUrl + 'constraints/' + c.task_id, {
           method: 'PATCH',
           headers: {
             Accept: 'application/json',
