@@ -5,8 +5,10 @@ import { commStyles } from '../Util';
 import { Event } from '../Model';
 
 export default React.memo(function(props: any) {
+
     const {value, onChange, ...others}:
         {value: Event, onChange: (v: any) => void} = props;
+
         const handleStartTimeChange = useCallback(
             (date: Date) => onChange({
                 id: value.id,
@@ -20,6 +22,7 @@ export default React.memo(function(props: any) {
             (date: Date) => onChange({id: value.id, task_id: value.task_id, endTime: date}),
             [onChange, value.id, value.task_id]);
     return (
+
         <View style={commStyles.hBox}>
             <DateAndTime style={commStyles.expand} title='Start' value={value.startTime}
                 onChange={handleStartTimeChange} />
