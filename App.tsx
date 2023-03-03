@@ -78,7 +78,6 @@ function App(): JSX.Element {
 
     const handleEventCreate = useCallback(async () => {
         const newTask: Task = {
-            id: -1,
             title: 'New Event',
             category: 0,
             priority: 2,
@@ -86,8 +85,6 @@ function App(): JSX.Element {
         const startTime = startOfHour(new Date(curDate.getTime() + 1000 * 60 * 60));
         const endTime = new Date(startTime.getTime() + 1000 * 60 * 60);
         const newEvent: Event = {
-            id: -1,
-            task_id: -1,
             startTime: startTime,
             endTime: endTime,
         };
@@ -134,25 +131,35 @@ function App(): JSX.Element {
 
     const handleTaskCreate = useCallback(async () => {
         const newTask: Task = {
-            id: -1,
             title: 'New Task',
             category: 2,
             priority: 2,
         };
-        const newConstraint: Constraint = {
-            task_id: -1,
-            dueTime: startOfHour(new Date(curDate.getTime() + 1000 * 60 * 60)),
-            duration: 1000 * 60 * 60,
-        };
-        const newTaskResponse = await fetchBackend('POST', 'task', newTask);
-        const newTaskData = await newTaskResponse.json();
-        console.log('Create task response: ' + JSON.stringify(newTaskData));
-        newTask.id = newConstraint.task_id = newTaskData.id;
-        setTasks({...tasks, [newTask.id]: newTask});
-        setConstraints({...constraints, [newConstraint.task_id]: newConstraint});
-        fetchBackend('POST', `task/${newTask.id}/constraint`, newConstraint)
-          .then((response) => response.text())
-          .then((text) => console.log('Create constraint response: ' + text));
+        console.log(newTask)
+        // const newConstraint: Constraint = {
+            // dueTime: startOfHour(new Date(curDate.getTime() + 1000 * 60 * 60)),
+            // duration: 1000 * 60 * 60,
+        // };
+        try {
+            const newTaskResponse = await fetchBackend('POST', 'task', newTask);
+            try {
+                const newTaskData = await newTaskResponse.json();
+                console.log('Create task response: ' + JSON.stringify(newTaskData));
+                newTask.id = newTaskData.id;
+                setTasks({...tasks, [newTask.id]: newTask});
+
+            } catch (errors) {
+                console.log(errors);
+                return;
+            }
+        } catch (errors) {
+            console.log(errors);
+            return;
+        }
+        //setConstraints({...constraints, [newConstraint.task_id]: newConstraint});
+        //fetchBackend('POST', `task/${newTask.id}/constraint`, newConstraint)
+          // .then((response) => response.text())
+          // .then((text) => console.log('Create constraint response: ' + text));
         return newTask.id;
     }, [tasks, constraints]);
 
@@ -238,16 +245,6 @@ function App(): JSX.Element {
             Alert.alert("login failed");
             console.error(error);
         } 
-    }
-
-    const handleEmailChange = useCallback((t: any) => {
-        setEmail({email: t});
-        console.log("set email to:" + t);
-
-    });
-
-    const getEmail = () => {
-        Alert.alert("Well at least this is working");
     }
 
     const handleConstraintChange = useCallback((c: any) => {
