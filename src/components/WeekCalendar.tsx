@@ -1,5 +1,5 @@
 import { useIsFocused } from '@react-navigation/native';
-import React, { useCallback, useMemo } from 'react';
+import React, { Fragment, useCallback, useMemo } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import { FloatingButton, Text, TouchableOpacity, View } from 'react-native-ui-lib';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -85,12 +85,13 @@ function DayColumn(props: any) {
             { curTime.getDate() == date.getDate() ?
                 <TimeMarker date={curTime} /> : <></> }
             { events.map((event: Event, i: number) =>
-                <WeekEvent event={event} task={tasks[event.task_id]} navigation={navigation} />) }
+                <WeekEvent key={-event.id}
+                    event={event} task={tasks[event.task_id]} navigation={navigation} />) }
             { hours.map((hour, i) =>
-                <>
+                <Fragment key={i}>
                     <View style={styles.hourDivider} />
                     <View style={styles.hourSpace} />
-                </>
+                </Fragment>
             ) }
         </View>
     );
@@ -101,10 +102,10 @@ function TimeColumn(props: any) {
         <View style={styles.dayColumn}>
             <View style={styles.hourSpace} />
             {hours.map((hour, i) =>
-                <>
+                <Fragment key={i}>
                     <Text style={styles.hourLabel}>{hourToString(hour) + ' '}</Text>
                     <View style={styles.hourSpace} />
-                </>
+                </Fragment>
             )}
         </View>
     )
