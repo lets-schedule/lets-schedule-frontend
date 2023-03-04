@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { LogBox, useColorScheme } from 'react-native';
+import { LogBox, useColorScheme, Alert } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { gestureHandlerRootHOC } from 'react-native-gesture-handler';
@@ -16,14 +16,24 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import EditFixedEventPage from './src/components/EditFixedEventPage';
 import { removeTaskEvents, scheduleTaskEvents } from './src/AutoSchedule';
 import LoginPage from './src/components/LoginPage';
+import SignUpPage from './src/components/SignUpPage';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
-const serverUrl = "http://10.0.2.2:3000/";
+const serverURL = "http://52.12.169.220:3000/";
 
 const curDate = new Date(); // TODO: update time!!
 
 const authToken = '';
+const refresh_token = '';
+const resource_owner = '';
+const user_email = '';
+
+type Authorization = {
+    authToken: string;
+    refreshToken: string;
+    userEmail: string;
+}
 
 LogBox.ignoreAllLogs();
 const oldWarn = console.warn;
@@ -33,17 +43,7 @@ console.warn = (...args) => {
   oldWarn(...args);
 };
 
-function fetchBackend(method: string, path: string, bodyObj: object): Promise<Response> {
-  return fetch(serverUrl + path, {
-    method: method,
-    headers: {
-      Accept: 'application/json',
-      Authorization: 'Bearer ' + authToken,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(bodyObj),
-  });
-}
+
 
 function App(): JSX.Element {
     const isDarkMode = useColorScheme() === 'dark';
@@ -55,6 +55,20 @@ function App(): JSX.Element {
     const [events, setEvents]: [Record<number, Event>, Function] = useState({});
     const [tasks, setTasks]: [Record<number, Task>, Function] = useState({});
     const [constraints, setConstraints]: [Record<number, Constraint>, Function] = useState({});
+    const [email, setEmail]: [String, Function] = useState({});
+    const [auth, setAuth] = useState<Authorization[]>([]);
+
+    function fetchBackend(method: string, path: string, bodyObj: object): Promise<Response> {
+      return fetch(serverURL + path, {
+        method: method,
+        headers: {
+          Accept: 'application/json',
+          Authorization: 'Bearer ' + auth.authToken,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bodyObj),
+      });
+    }
 
     const curWeek = useMemo(() => {
         let date = new Date(curDate);
@@ -78,7 +92,12 @@ function App(): JSX.Element {
             endTime: endTime,
         };
 
-        const newTaskResponse = await fetchBackend('POST', 'task', newTask);
+        try {
+            const newTaskResponse = await fetchBackend('POST', 'task', newTask);
+        } catch (errors) {
+            console.log(errors);
+        }
+
         const newTaskData = await newTaskResponse.json();
         console.log('Create task response: ' + JSON.stringify(newTaskData));
         newTask.id = newEvent.task_id = newTaskData.id;
@@ -153,6 +172,84 @@ function App(): JSX.Element {
           .then((text) => console.log('Patch task response: ' + text));
     }, [tasks]);
 
+    const handleSignUp = useCallback((email:string, password:string) => {  
+        const credentials = {
+            email: email,
+            password: password
+        };
+
+        getSignUp(credentials);
+    });
+
+    const getSignUp = async (data: Object) => {
+        try {
+            const response = await fetch(
+                serverURL + 'users/tokens/sign_up', {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                }
+            )
+            const json = await response.json();
+            const newAuth: Authorization = {
+               authToken: json.token,
+               refresh_token: json.refresh_token,
+               userEmail: json.resource_owner.email
+            }
+            setAuth({newAuth});
+        } catch (error) {
+            Alert.alert("That email has already been taken");
+            console.error(error);
+        } 
+    }
+
+    const handleSignIn = useCallback((email:string, password:string) => {  
+        const credentials = {
+            email: email,
+            password: password
+        };
+
+        getSignIn(credentials);
+    });
+
+    const getSignIn = async (data: Object) => {
+        try {
+            const response = await fetch(
+                serverURL + 'users/tokens/sign_in', {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                }
+            )
+            const json = await response.json();
+            const newAuth: Authorization = {
+               authToken: json.token,
+               refresh_token: json.refresh_token,
+               userEmail: json.resource_owner.email
+            }
+            setAuth({newAuth});
+        } catch (error) {
+            Alert.alert("login failed");
+            console.error(error);
+        } 
+    }
+
+    const handleEmailChange = useCallback((t: any) => {
+        setEmail({email: t});
+        console.log("set email to:" + t);
+
+    });
+
+    const getEmail = () => {
+        Alert.alert("Well at least this is working");
+    }
+
     const handleConstraintChange = useCallback((c: any) => {
         setConstraints({...constraints, [c.task_id]: mergeState(constraints[c.task_id], c)});
         fetchBackend('PATCH', `task/${c.task_id}/constraint`, c)
@@ -202,8 +299,15 @@ function App(): JSX.Element {
     return (
         <NavigationContainer>
             <Stack.Navigator initialRouteName="Login">
-                <Stack.Screen name="Login" component={LoginPage}
-                    options={{title: "Let's Schedule"}} />
+                <Stack.Screen name="Login" options={{title: "Let's Schedule"}}>
+                     {(props) => <LoginPage { ...props}
+                        onSignInButtonPress={handleSignIn}/>}
+                </Stack.Screen>
+                <Stack.Screen name="SignUp" options={{title: "Create Account"}}>
+                    {(props) => <SignUpPage { ...props}
+                        onSignUpButtonPress={handleSignUp} 
+                        />}
+                </Stack.Screen>
                 <Stack.Screen name="MainTabs" component={MainTabs} options={{headerShown: false}} />
                 <Stack.Screen name="EditAutoTask" options={{title: 'Edit Task'}}>
                     {(props) => <EditAutoTaskPage {...props}

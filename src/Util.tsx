@@ -27,9 +27,10 @@ export const commStyles = StyleSheet.create({
     vBox: {flexDirection: 'column'},
     expand: {flex: 1},
     grow: {flexGrow: 1},
+    signIn: {padding: 30},
     centerText: {textAlign: 'center'},
     formPage: {flex: 1, padding: 20},
-    padded: {padding: 10},
+    padded: {padding: 20},
 });
 
 export function mergeState(prevState: any, update: any) {
