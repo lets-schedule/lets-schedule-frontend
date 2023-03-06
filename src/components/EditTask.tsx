@@ -15,18 +15,18 @@ export default React.memo(function(props: any) {
         // [onChange, value.id]);
 
     const handleCategoryChange = (hex: String) => {
-        if (hex == "#FC3D2F") {
+        if (hex === "#FC3D2F") {
             props.onCategoryChange(1);
-        } else if (hex == "#FFC50D") {
+        } else if (hex === "#FFC50D") {
             props.onCategoryChange(2);
 
-        } else if (hex == "#00A87E") {
+        } else if (hex === "#00A87E") {
             props.onCategoryChange(3);
 
-        } else if (hex == "#9F42BD") {
+        } else if (hex === "#9F42BD") {
             props.onCategoryChange(4);
 
-        } else if (hex == "#6E7881") {
+        } else if (hex === "#6E7881") {
             props.onCategoryChange(5);
         }
 

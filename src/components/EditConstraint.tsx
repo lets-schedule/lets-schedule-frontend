@@ -8,27 +8,27 @@ const HOUR_MILLIS = 1000 * 60 * 60;
 
 export default React.memo(function(props: any) {
 
-    const {value, onChange, ...others}:
-        {value: Constraint, onChange: (v: any) => void} = props;
+    const {onChange, ...others}:
+        {onChange: (v: any) => void} = props;
 
     const handleDurationChange = useCallback((data: NumberInputData) => {
         if (data.type === 'valid')
-            onChange({task_id: value.task_id, duration: data.number * HOUR_MILLIS});
-    }, [onChange, value.task_id]);
+            onChange({duration: data.number * HOUR_MILLIS});
+    }, [onChange]);
 
     const handleDueChange = useCallback(
-        (date: Date) => onChange({task_id: value.task_id, dueTime: date}),
-        [onChange, value.task_id]);
+        (date: Date) => onChange({dueTime: date}),
+        [onChange]);
 
     return (
         <View style={commStyles.hBox}>
             <View style={commStyles.expand}>
                 <NumberInput label='Duration:' trailingText=' hours'
-                    initialNumber={value.duration / HOUR_MILLIS}
+                    initialNumber={5}
                     onChangeNumber={handleDurationChange} />
             </View>
             <View style={commStyles.expand}>
-                <DateAndTime title='Due' value={value.dueTime} onChange={handleDueChange} />
+                <DateAndTime title='Due' onChange={handleDueChange} />
             </View>
         </View>
     );

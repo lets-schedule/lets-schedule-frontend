@@ -85,10 +85,12 @@ function App(): JSX.Element {
         route = serverURL + path;
         console.log("method: " + method);
         console.log("object to be sent: " + JSON.stringify(bodyObj));
+        console.log("route: " + route);
 
-        
-
-        console.log(authToken);
+        if (typeof authToken !== "string") {
+            console.warn("Authtoken not valid");
+            return;
+        }
 
           return fetch(route, {
             method: method,
@@ -118,8 +120,8 @@ function App(): JSX.Element {
         }
 
         const newEvent: Event = {
-            startDateTime: startDateTime,
-            endDateTime: endDateTime
+            startTime: startDateTime,
+            endTime: endDateTime
         }
 
         try {
@@ -127,7 +129,7 @@ function App(): JSX.Element {
             try {
                 const newTaskData = await newTaskResponse.json();
                 console.log('Create task response: ' + JSON.stringify(newTaskData));
-                newTask.id = newEvent.task_id = newTaskData.id;
+                newTask.id = newTaskData.id;
                 setTasks({ ...tasks, [newTask.id]: newTask });
                 try {
                     const newEventResponse = await fetchBackend('POST', `task/${newTask.id}/event`, newEvent);
@@ -135,14 +137,15 @@ function App(): JSX.Element {
                         const newEventData = await newEventResponse.json();
                         console.log('Create event response: ' + JSON.stringify(newEventData));
                         newEvent.id = newEventData.id;
+                        newEvent.task_id = newTask.id;
                     } catch (errors) {
-                        console.log(errors);
+                        console.warn(errors);
                     }
                 } catch (errors) {
-                    console.log(errors)
+                    console.warn(errors)
                 }
             } catch (errors) {
-                console.log(errors);
+                console.warn(errors);
             }
 
             setEvents({ ...events, [newEvent.id]: newEvent });
@@ -184,10 +187,6 @@ function App(): JSX.Element {
             category: category,
             priority: priority,
         };
-        const task_obj = {
-            task: newTask,
-        }
-        console.log(JSON.stringify(task_obj));
         
         try {
             const newTaskResponse = await fetchBackend('POST', 'task', newTask);
@@ -250,16 +249,9 @@ function App(): JSX.Element {
                 }
             )
             const json = await response.json();
-            const newAuth: Authorization = {
-               authToken: json.token,
-               refresh_token: json.refresh_token,
-               userEmail: json.resource_owner.email
-            };
 
             storeData(json.token).then((response) => console.log("Response: " + response));
 
-            setAuth({newAuth});
-            await crossLocalStorage.setItem("localAuthToken", json.token);
         } catch (error) {
             Alert.alert("That email has already been taken");
             console.error(error);
@@ -288,11 +280,6 @@ function App(): JSX.Element {
                 }
             )
             const json = await response.json();
-            const newAuth: Authorization = {
-               authToken: json.token,
-               refresh_token: json.refresh_token,
-               userEmail: json.resource_owner.email
-            }
 
             storeData(json.token).then((response) => console.log("Response: " + response));
             
