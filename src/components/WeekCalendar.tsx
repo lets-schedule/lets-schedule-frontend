@@ -19,16 +19,17 @@ export default React.memo(function(props: any) {
         return {
             label: 'Add Event',
             onPress: () => {
-                onEventCreate().then((eventId: number) =>
-                    navigation.navigate("EditFixedEvent", { eventId: eventId }));
+                 navigation.navigate("EditFixedEvent");
             }
         }}, [navigation]);
+
     const dates: Date[] = useMemo(() =>
         [...Array(7)].map((e, i) => {
             var date = new Date(week);
             date.setDate(date.getDate() + i);
             return date;
         }), [week]);
+
     const dayEvents: Event[][] = useMemo(() =>
         dates.map((date, i) => getDayEvents(date)), [dates, getDayEvents]);
     const scrollOffset = useMemo(() => {return {x: 0, y: 9 * hourHeight}}, []);

@@ -1,10 +1,10 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { LogBox, useColorScheme, Alert } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { gestureHandlerRootHOC } from 'react-native-gesture-handler';
-
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import TaskList from './src/components/TaskList';
 import { Event, Constraint, Task } from './src/Model';
@@ -56,18 +56,49 @@ function App(): JSX.Element {
     const [tasks, setTasks]: [Record<number, Task>, Function] = useState({});
     const [constraints, setConstraints]: [Record<number, Constraint>, Function] = useState({});
     const [email, setEmail]: [String, Function] = useState({});
-    const [auth, setAuth] = useState<Authorization[]>([]);
+    const [auth, setAuth]: [Authorization, Function] = useState<Authorization>({ 
+    authToken: "", refreshToken: "", userEmail: ""});
 
-    function fetchBackend(method: string, path: string, bodyObj: object): Promise<Response> {
-      return fetch(serverURL + path, {
-        method: method,
-        headers: {
-          Accept: 'application/json',
-          Authorization: 'Bearer ' + auth.authToken,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(bodyObj),
-      });
+    async function storeData(value: String) {
+        try {
+            await AsyncStorage.setItem('@storage_Key', value);
+        } catch (e) {
+            console.warn(e);
+        }
+    }
+
+    async function getData(): Promise<Response> {
+        try {
+            const value = await AsyncStorage.getItem('@storage_Key');
+            if (value !== null) {
+                return value;
+            } else {
+                console.warn("value is null");
+            }
+        } catch (e) {
+            console.warn(e);
+        }
+    }
+
+    async function fetchBackend(method: string, path: string, bodyObj: object): Promise<Response> {
+        const authToken = await getData();
+        route = serverURL + path;
+        console.log("method: " + method);
+        console.log("object to be sent: " + JSON.stringify(bodyObj));
+
+        
+
+        console.log(authToken);
+
+          return fetch(route, {
+            method: method,
+            headers: {
+              Accept: 'application/json',
+              Authorization: 'Bearer ' + authToken,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(bodyObj),
+          });
     }
 
     const curWeek = useMemo(() => {
@@ -76,35 +107,51 @@ function App(): JSX.Element {
         return date;
     }, [])
 
-    const handleEventCreate = useCallback(async () => {
+    const handleEventCreate = useCallback(async (
+            title: String, priority: Integer, category: Integer, startDateTime: any, endDateTime: any) => {
+
+
         const newTask: Task = {
-            title: 'New Event',
-            category: 0,
-            priority: 2,
-        };
-        const startTime = startOfHour(new Date(curDate.getTime() + 1000 * 60 * 60));
-        const endTime = new Date(startTime.getTime() + 1000 * 60 * 60);
+            title: title,
+            priority: priority,
+            category: category
+        }
+
         const newEvent: Event = {
-            startTime: startTime,
-            endTime: endTime,
-        };
+            startDateTime: startDateTime,
+            endDateTime: endDateTime
+        }
 
         try {
             const newTaskResponse = await fetchBackend('POST', 'task', newTask);
+            try {
+                const newTaskData = await newTaskResponse.json();
+                console.log('Create task response: ' + JSON.stringify(newTaskData));
+                newTask.id = newEvent.task_id = newTaskData.id;
+                setTasks({ ...tasks, [newTask.id]: newTask });
+                try {
+                    const newEventResponse = await fetchBackend('POST', `task/${newTask.id}/event`, newEvent);
+                    try {
+                        const newEventData = await newEventResponse.json();
+                        console.log('Create event response: ' + JSON.stringify(newEventData));
+                        newEvent.id = newEventData.id;
+                    } catch (errors) {
+                        console.log(errors);
+                    }
+                } catch (errors) {
+                    console.log(errors)
+                }
+            } catch (errors) {
+                console.log(errors);
+            }
+
+            setEvents({ ...events, [newEvent.id]: newEvent });
+
         } catch (errors) {
             console.log(errors);
         }
 
-        const newTaskData = await newTaskResponse.json();
-        console.log('Create task response: ' + JSON.stringify(newTaskData));
-        newTask.id = newEvent.task_id = newTaskData.id;
-        setTasks({ ...tasks, [newTask.id]: newTask });
 
-        const newEventResponse = await fetchBackend('POST', `task/${newTask.id}/event`, newEvent);
-        const newEventData = await newEventResponse.json();
-        console.log('Create event response: ' + JSON.stringify(newEventData));
-        newEvent.id = newEventData.id;
-        setEvents({ ...events, [newEvent.id]: newEvent });
 
         return newEvent.id;
     }, [events])
@@ -129,17 +176,19 @@ function App(): JSX.Element {
           .then((text) => console.log('Patch event response: ' + text));
     }, [events]);
 
-    const handleTaskCreate = useCallback(async () => {
+    const handleTaskCreate = useCallback(async (title: String, category: Integer, priority: Integer) => {
+
+        
         const newTask: Task = {
-            title: 'New Task',
-            category: 2,
-            priority: 2,
+            title: title,
+            category: category,
+            priority: priority,
         };
-        console.log(newTask)
-        // const newConstraint: Constraint = {
-            // dueTime: startOfHour(new Date(curDate.getTime() + 1000 * 60 * 60)),
-            // duration: 1000 * 60 * 60,
-        // };
+        const task_obj = {
+            task: newTask,
+        }
+        console.log(JSON.stringify(task_obj));
+        
         try {
             const newTaskResponse = await fetchBackend('POST', 'task', newTask);
             try {
@@ -160,7 +209,7 @@ function App(): JSX.Element {
         //fetchBackend('POST', `task/${newTask.id}/constraint`, newConstraint)
           // .then((response) => response.text())
           // .then((text) => console.log('Create constraint response: ' + text));
-        return newTask.id;
+        // return newTask.id;
     }, [tasks, constraints]);
 
     const handleTaskDelete = useCallback((item: Task) => {
@@ -205,8 +254,12 @@ function App(): JSX.Element {
                authToken: json.token,
                refresh_token: json.refresh_token,
                userEmail: json.resource_owner.email
-            }
+            };
+
+            storeData(json.token).then((response) => console.log("Response: " + response));
+
             setAuth({newAuth});
+            await crossLocalStorage.setItem("localAuthToken", json.token);
         } catch (error) {
             Alert.alert("That email has already been taken");
             console.error(error);
@@ -240,12 +293,15 @@ function App(): JSX.Element {
                refresh_token: json.refresh_token,
                userEmail: json.resource_owner.email
             }
-            setAuth({newAuth});
+
+            storeData(json.token).then((response) => console.log("Response: " + response));
+            
         } catch (error) {
             Alert.alert("login failed");
             console.error(error);
         } 
     }
+
 
     const handleConstraintChange = useCallback((c: any) => {
         setConstraints({...constraints, [c.task_id]: mergeState(constraints[c.task_id], c)});
@@ -313,9 +369,10 @@ function App(): JSX.Element {
                 </Stack.Screen>
                 <Stack.Screen name="EditFixedEvent" options={{title: 'Edit Event'}}>
                     {(props) => <EditFixedEventPage {...props}
-                        events={events} onEventChange={handleEventChange}
+                        events={events} 
+                        onCreateEvent={handleEventCreate}
                         onEventDelete={handleEventDelete}
-                        tasks={tasks} onTaskChange={handleTaskChange} />}
+                        tasks={tasks} />}
                 </Stack.Screen>
             </Stack.Navigator>
         </NavigationContainer>

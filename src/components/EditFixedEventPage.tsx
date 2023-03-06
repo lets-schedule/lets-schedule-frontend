@@ -8,21 +8,45 @@ import EditEvent from './EditEvent';
 import { ScrollView } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-export default React.memo(function ({ route, navigation, ...props }: any) {
-    const {eventId} = route.params;
+export default React.memo(function ({ route, onCreateEvent, navigation, ...props }: any) {
     const {events, onEventChange, onEventDelete, tasks, onTaskChange, ...others}: {
         events: Record<number, Event>, onEventChange: (v: any) => void,
         onEventDelete: (e: Event) => void,
         tasks: Record<number, Task>, onTaskChange: (v: any) => void,
         others: any} = props;
 
-    const event = useMemo(() => events[eventId], [events, eventId]);
-    const task = useMemo(() => tasks[event.task_id], [tasks, event]);
-    
+    let title, category, priority, startDateTime, endDateTime;
+
+    const handleTitleChange = (text: String) => {
+        title = text;
+        console.log(title);
+    }
+
+    const handleCategoryChange = (v: any) => {
+        category = v;
+        console.log("Category: " + category);
+    }
+
+    const handlePriorityChange = (v: any) => {
+        priority = v;
+        console.log("Priority: " + priority);
+    }
+
+    const handleStartDateTimeChange = (v: any) => {
+        startDateTime = v;
+        console.log(startDateTime);
+    }
+
+    const handleEndDateTimeChange = (v: any) => {
+        endDateTime = v;
+        console.log(endDateTime);
+    }
+
     const handleDelete = useCallback(() => {
-        onEventDelete(event);
+        onEventDelete();
         navigation.goBack();
-    }, [event, onEventDelete, navigation]);
+    }, [onEventDelete, navigation]);
+
     React.useEffect(() => {
         navigation.setOptions({
             headerRight: () => (
@@ -35,22 +59,30 @@ export default React.memo(function ({ route, navigation, ...props }: any) {
     }, [handleDelete]);
 
     const [repeat, setRepeat] = useState({
-        repeat: false, until: event.endTime,
+        repeat: false, 
         days: [true, true, true, true, true, true, true]
     });
+
     const handleRepeatChange = useCallback((r: any) => setRepeat(mergeStateAction(r)), []);
+
     const button = useMemo(() => {
         return {
             label: 'Done',
-            onPress: () => navigation.goBack(),
+            onPress: () => {
+                onCreateEvent(title, category, priority, startDateTime, endDateTime);
+                navigation.goBack();
+            },
         }}, [navigation]);
 
     return (
         <>
         <ScrollView {...others} style={commStyles.expand}>
             <View style={commStyles.formPage}>
-                <EditTask value={task} onChange={onTaskChange} />
-                <EditEvent value={event} onChange={onEventChange} />
+                <EditTask onTitleChange={handleTitleChange}
+                    onCategoryChange={handleCategoryChange}
+                    onPriorityChange={handlePriorityChange}/>
+                <EditEvent onStartDateTimeChange={handleStartDateTimeChange}
+                    onEndDateTimeChange={handleEndDateTimeChange}/>
                 <Text style={commStyles.padded}>Repeat</Text>
                 <EditRepeatSettings value={repeat} onChange={handleRepeatChange} />
                 <View style={commStyles.padded} />

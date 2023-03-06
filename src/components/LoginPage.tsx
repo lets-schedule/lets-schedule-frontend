@@ -5,7 +5,8 @@ import { commStyles } from '../Util';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useIsFocused } from '@react-navigation/native';
 
-export default function LoginPage({ navigation, onSignInButtonPress, ...props }: any) {
+export default function LoginPage({ 
+    navigation, onSignInButtonPress, ...props }: any) {
 
     let user_email;
     let password;
