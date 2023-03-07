@@ -59,15 +59,20 @@ function App(): JSX.Element {
     const [auth, setAuth] = useState<Authorization[]>([]);
 
     function fetchBackend(method: string, path: string, bodyObj: object): Promise<Response> {
-      return fetch(serverURL + path, {
-        method: method,
-        headers: {
-          Accept: 'application/json',
-          Authorization: 'Bearer ' + auth.authToken,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(bodyObj),
-      });
+        try {
+          return fetch(serverURL + path, {
+            method: method,
+            headers: {
+              Accept: 'application/json',
+              Authorization: 'Bearer ' + auth.authToken,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(bodyObj),
+          });
+         } catch (errors) {
+            Alert.alert("error");
+            console.log(errors);
+         }
     }
 
     const curWeek = useMemo(() => {
