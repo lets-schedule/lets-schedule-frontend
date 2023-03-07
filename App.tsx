@@ -179,7 +179,7 @@ function App(): JSX.Element {
         };
 
         getSignUp(credentials);
-    });
+    }, []);
 
     const getSignUp = async (data: Object) => {
         try {
@@ -213,7 +213,7 @@ function App(): JSX.Element {
         };
 
         getSignIn(credentials);
-    });
+    }, []);
 
     const getSignIn = async (data: Object) => {
         try {
@@ -243,8 +243,7 @@ function App(): JSX.Element {
     const handleEmailChange = useCallback((t: any) => {
         setEmail({email: t});
         console.log("set email to:" + t);
-
-    });
+    }, [setEmail]);
 
     const getEmail = () => {
         Alert.alert("Well at least this is working");

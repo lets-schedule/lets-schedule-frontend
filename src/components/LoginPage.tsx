@@ -27,7 +27,7 @@ export default function LoginPage({ navigation, onSignInButtonPress, ...props }:
                 navigation.navigate("MainTabs");
             }
         }
-    }, []);
+    }, [onSignInButtonPress, navigation]);
 
     if (!useIsFocused())
         return <></>

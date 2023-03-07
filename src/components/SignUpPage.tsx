@@ -27,7 +27,7 @@ export default function SignUpPage({ navigation, onSignUpButtonPress, ...props }
                 navigation.navigate("MainTabs");
             }
         }
-    }, []);
+    }, [onSignUpButtonPress, navigation]);
 
     const handleChange = (event) => {
         console.log(event.target.value);
