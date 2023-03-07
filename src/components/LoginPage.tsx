@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { FloatingButton, TextField, View, Text } from 'react-native-ui-lib';
 import { Button, Alert } from 'react-native'
 import { commStyles } from '../Util';
@@ -7,27 +7,26 @@ import { useIsFocused } from '@react-navigation/native';
 
 export default function LoginPage({ navigation, onSignInButtonPress, ...props }: any) {
 
-    let user_email;
-    let password;
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
 
     const handleCaptureEmail = (text:string) => {
-        user_email = text;
-        //console.log(user_email);
+        setEmail(text);
     };
 
     const handleCapturePassword = (text:string) => {
-        password = text;
+        setPassword(text);
     };
 
     const log_in_button = useMemo(() => {
         return {
             label: 'Log In',
             onPress: () => {
-                onSignInButtonPress(user_email, password);
+                onSignInButtonPress(email, password);
                 navigation.navigate("MainTabs");
             }
         }
-    }, [onSignInButtonPress, navigation]);
+    }, [onSignInButtonPress, navigation, email, password]);
 
     if (!useIsFocused())
         return <></>
