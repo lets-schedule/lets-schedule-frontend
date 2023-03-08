@@ -23,7 +23,7 @@ export default function SignUpPage({ navigation, onSignUpButtonPress, ...props }
         return {
             label: 'Create Account',
             onPress: () => {
-                onSignUpButtonPress(user_email, password);
+                onSignUpButtonPress(user_email, password, navigation);
                 navigation.navigate("MainTabs");
             }
         }
