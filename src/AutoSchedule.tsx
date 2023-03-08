@@ -3,19 +3,16 @@ import { randomId } from "./Util";
 
 const switchTime = 10 * 60 * 1000;
 
-export function removeTaskEvents(task_id: number, events: Record<number, Event>)
-        : Record<number, Event> {
-    return Object.keys(events).filter((key: number) => (events[key].task_id != task_id))
-        .reduce((obj: any, key: number) => {
-            return {
-                ...obj,
-                [key]: events[key]
-            };
-        }, {});
+export function removeTaskEvents(task_id: number, events: Record<number, Event>,
+            onRemove: (eventId: number) => void) {
+    Object.keys(events).forEach((key: any) => {
+        if (events[key].task_id == task_id)
+            onRemove(Number(key));
+    });
 }
 
-export function scheduleTaskEvents(task_id: number, constraint: Constraint,
-        events: Record<number, Event>, curTime: Date) {
+export async function scheduleTaskEvents(task_id: number, constraint: Constraint,
+        events: Record<number, Event>, curTime: Date, onCreate: (event: Event) => Promise<void>) {
     let remainingDuration = constraint.duration;
     while (remainingDuration > 0) {
         let start = nextFreeTime(curTime, events);
@@ -24,17 +21,15 @@ export function scheduleTaskEvents(task_id: number, constraint: Constraint,
             end = new Date(start.getTime() + remainingDuration);
         }
         // add event...
-        const newEvent: Event = {
-            id: randomId(),
+        await onCreate({
+            id: -1,
             task_id: task_id,
             startTime: start,
             endTime: end,
-        }
-        events = {...events, [newEvent.id]: newEvent};
+        });
         curTime = end;
         remainingDuration -= end.getTime() - start.getTime();
     }
-    return events;
 }
 
 function nextFreeTime(time: Date, events: Record<number, Event>) {

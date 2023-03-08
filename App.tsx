@@ -319,7 +319,7 @@ function SignedInApp({ route, navigation, ...props}: any) {
           .then((text) => console.log('Patch event response: ' + text));
     }, [events])
 
-    const handleTaskComplete = useCallback((task_id: number) => {
+    const handleTaskComplete = useCallback(async (task_id: number) => {
         fetchBackend('PATCH', `task/${task_id}`, tasks[task_id])
             .then((response) => response.text())
             .then((text) => console.log('Patch task response: ' + text));
@@ -327,9 +327,26 @@ function SignedInApp({ route, navigation, ...props}: any) {
             .then((response) => response.text())
             .then((text) => console.log('Patch constraint response: ' + text));
 
-        const newEvents = removeTaskEvents(task_id, events);
+        let newEvents = events;
+        removeTaskEvents(task_id, events, eventId => {
+            const event = newEvents[eventId];
+            fetchBackend('DELETE', `task/${event.task_id}/event/${eventId}`, {})
+                .then((response) => response.text())
+                .then((text) => console.log('Delete event response: ' + text));
+
+            let {[eventId]: _, ...rest} = newEvents;
+            newEvents = rest;
+        });
+        setEvents(newEvents);
         // TODO: REST API
-        setEvents(scheduleTaskEvents(task_id, constraints[task_id], newEvents, curDate));
+        await scheduleTaskEvents(task_id, constraints[task_id], newEvents, curDate, async (e) => {
+            const newEventResponse = await fetchBackend('POST', `task/${task_id}/event`, e);
+            const newEventData = await newEventResponse.json();
+            console.log('Create event response: ' + JSON.stringify(newEventData));
+            e.id = newEventData.id;
+            newEvents = {...newEvents, [e.id]: e};
+        });
+        setEvents(newEvents);
     }, [tasks, events, constraints]);
 
     const MainTabs = useCallback((props: any) => (

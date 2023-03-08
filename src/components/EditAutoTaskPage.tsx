@@ -10,7 +10,7 @@ export default React.memo(function({ route, navigation, ...props }: any) {
     const {tasks, onTaskChange, constraints, onConstraintChange, onComplete, ...others}: {
         tasks: Record<number, Task>, onTaskChange: (v: any) => void,
         constraints: Record<number, Constraint>, onConstraintChange: (v: any) => void,
-        onComplete: (task_id: number) => void,
+        onComplete: (task_id: number) => Promise<void>,
         others: any} = props;
 
     const task = useMemo(() => tasks[task_id], [tasks, task_id]);
@@ -18,7 +18,7 @@ export default React.memo(function({ route, navigation, ...props }: any) {
     const button = useMemo(() => {
         return {
             label: 'Done',
-            onPress: () => {navigation.goBack(); onComplete(task_id)},
+            onPress: () => {onComplete(task_id).then(() => navigation.goBack())},
         }}, [navigation, onComplete]);
 
     return (
