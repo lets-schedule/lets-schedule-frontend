@@ -62,11 +62,11 @@ function App(): JSX.Element {
         (method: string, path: string, bodyObj: object): Promise<Response> => {
             console.log(JSON.stringify(auth));
             return fetch(serverURL + path, {
-            method: method,
-            headers: {
-            Accept: 'application/json',
-            Authorization: 'Bearer ' + auth.authToken,
-            'Content-Type': 'application/json',
+                method: method,
+                headers: {
+                Accept: 'application/json',
+                Authorization: 'Bearer ' + auth.authToken,
+                'Content-Type': 'application/json',
             },
             body: JSON.stringify(bodyObj),
         });
