@@ -44,7 +44,7 @@ export default React.memo(function ({ route, navigation, ...props }: any) {
         return {
             label: 'Done',
             onPress: () => {navigation.goBack(); onComplete(eventId)},
-        }}, [navigation]);
+        }}, [navigation, onComplete]);
 
     return (
         <>
