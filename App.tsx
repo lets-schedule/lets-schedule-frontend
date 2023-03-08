@@ -18,7 +18,8 @@ import { removeTaskEvents, scheduleTaskEvents } from './src/AutoSchedule';
 import LoginPage from './src/components/LoginPage';
 import SignUpPage from './src/components/SignUpPage';
 
-const Stack = createNativeStackNavigator();
+const RootStack = createNativeStackNavigator();
+const UserStack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const serverURL = "http://52.12.169.220:3000/";
 
@@ -122,19 +123,19 @@ function App(): JSX.Element {
 
     return (
         <NavigationContainer>
-            <Stack.Navigator initialRouteName="Login">
-                <Stack.Screen name="Login" options={{title: "Let's Schedule"}}>
+            <RootStack.Navigator initialRouteName="Login">
+                <RootStack.Screen name="Login" options={{title: "Let's Schedule"}}>
                      {(props) => <LoginPage { ...props}
                         onSignInButtonPress={handleSignIn}/>}
-                </Stack.Screen>
-                <Stack.Screen name="SignUp" options={{title: "Create Account"}}>
+                </RootStack.Screen>
+                <RootStack.Screen name="SignUp" options={{title: "Create Account"}}>
                     {(props) => <SignUpPage { ...props}
                         onSignUpButtonPress={handleSignUp} 
                         />}
-                </Stack.Screen>
-                <Stack.Screen name="SignedIn" options={{headerShown: false}}
+                </RootStack.Screen>
+                <RootStack.Screen name="SignedIn" options={{headerShown: false}}
                     component={SignedInApp} />
-            </Stack.Navigator>
+            </RootStack.Navigator>
         </NavigationContainer>
     );
 }
@@ -196,7 +197,7 @@ function SignedInApp({ route, navigation, ...props}: any) {
         setEvents({ ...events, [newEvent.id]: newEvent });
 
         return newEvent.id;
-    }, [events, fetchBackend, setTasks, setEvents])
+    }, [events, fetchBackend])
 
     const handleEventDelete = useCallback((e: Event) => {
         setEvents((({[e.id]: _, ...rest}: any) => rest)(events));
@@ -209,14 +210,14 @@ function SignedInApp({ route, navigation, ...props}: any) {
               .then((response) => response.text())
               .then((text) => console.log('Delete task response: ' + text));
         }
-    }, [tasks, events, fetchBackend, setEvents, setTasks]);
+    }, [tasks, events, fetchBackend]);
 
     const handleEventChange = useCallback((e: any) => {
         setEvents({...events, [e.id]: mergeState(events[e.id], e)});
         fetchBackend('PATCH', `task/${e.task_id}/event/${e.id}`, e)
           .then((response) => response.text())
           .then((text) => console.log('Patch event response: ' + text));
-    }, [events, fetchBackend, setEvents]);
+    }, [events, fetchBackend]);
 
     const handleTaskCreate = useCallback(async () => {
         const newTask: Task = {
@@ -240,7 +241,7 @@ function SignedInApp({ route, navigation, ...props}: any) {
           .then((response) => response.text())
           .then((text) => console.log('Create constraint response: ' + text));
         return newTask.id;
-    }, [tasks, constraints, fetchBackend, setTasks, setConstraints]);
+    }, [tasks, constraints, fetchBackend]);
 
     const handleTaskDelete = useCallback((item: Task) => {
         setTasks((({[item.id]: _, ...rest}: any) => rest)(tasks));
@@ -249,21 +250,21 @@ function SignedInApp({ route, navigation, ...props}: any) {
         fetchBackend('DELETE', `task/${item.id}`, {})
           .then((response) => response.text())
           .then((text) => console.log('Delete task response: ' + text));
-    }, [tasks, events, constraints, fetchBackend, setTasks, setConstraints, setEvents]);
+    }, [tasks, events, constraints, fetchBackend]);
 
     const handleTaskChange = useCallback((t: any) => {
         setTasks({...tasks, [t.id]: mergeState(tasks[t.id], t)});
         fetchBackend('PATCH', `task/${t.id}`, t)
           .then((response) => response.text())
           .then((text) => console.log('Patch task response: ' + text));
-    }, [tasks, fetchBackend, setTasks]);
+    }, [tasks, fetchBackend]);
 
     const handleConstraintChange = useCallback((c: any) => {
         setConstraints({...constraints, [c.task_id]: mergeState(constraints[c.task_id], c)});
         fetchBackend('PATCH', `task/${c.task_id}/constraint`, c)
           .then((response) => response.text())
           .then((text) => console.log('Patch constraint response: ' + text));
-    }, [constraints, fetchBackend, setConstraints]);
+    }, [constraints, fetchBackend]);
 
     const getDayEvents = useCallback((date: Date) =>
         Object.values(events).filter((value: Event) =>
@@ -275,9 +276,9 @@ function SignedInApp({ route, navigation, ...props}: any) {
         const newEvents = removeTaskEvents(task_id, events);
         // TODO: REST API
         setEvents(scheduleTaskEvents(task_id, constraints[task_id], newEvents, curDate));
-    }, [events, constraints, setEvents]);
+    }, [events, constraints]);
 
-    const MainTabs = (props: any) => (
+    const MainTabs = useCallback((props: any) => (
         <Tab.Navigator screenOptions={({ route }) => ({
             tabBarIcon: ({ color, size }) => (
                 <MaterialCommunityIcons
@@ -302,22 +303,22 @@ function SignedInApp({ route, navigation, ...props}: any) {
                 {() => null}
             </Tab.Screen>
         </Tab.Navigator>
-    );
+    ), [curWeek, curDate, tasks, constraints, handleEventCreate, getDayEvents, handleTaskCreate, handleTaskDelete]);
 
-    return <Stack.Navigator>
-        <Stack.Screen name="MainTabs" component={MainTabs} options={{headerShown: false}} />
-        <Stack.Screen name="EditAutoTask" options={{title: 'Edit Task'}}>
+    return <UserStack.Navigator>
+        <UserStack.Screen name="MainTabs" component={MainTabs} options={{headerShown: false}} />
+        <UserStack.Screen name="EditAutoTask" options={{title: 'Edit Task'}}>
             {(props) => <EditAutoTaskPage {...props}
                 tasks={tasks} constraints={constraints} onTaskChange={handleTaskChange}
                 onConstraintChange={handleConstraintChange} onComplete={handleAutoSchedule} />}
-        </Stack.Screen>
-        <Stack.Screen name="EditFixedEvent" options={{title: 'Edit Event'}}>
+        </UserStack.Screen>
+        <UserStack.Screen name="EditFixedEvent" options={{title: 'Edit Event'}}>
             {(props) => <EditFixedEventPage {...props}
                 events={events} onEventChange={handleEventChange}
                 onEventDelete={handleEventDelete}
                 tasks={tasks} onTaskChange={handleTaskChange} />}
-        </Stack.Screen>
-    </Stack.Navigator>
+        </UserStack.Screen>
+    </UserStack.Navigator>
 }
 
 export default gestureHandlerRootHOC(App);
