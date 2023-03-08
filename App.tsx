@@ -6,7 +6,7 @@ import { gestureHandlerRootHOC } from 'react-native-gesture-handler';
 
 import TaskList from './src/components/TaskList';
 import { Event, Constraint, Task } from './src/Model';
-import { mergeState, randomId, startOfHour } from './src/Util';
+import { mergeState, startOfHour } from './src/Util';
 import EditAutoTaskPage from './src/components/EditAutoTaskPage';
 import WeekCalendar from './src/components/WeekCalendar';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -289,7 +289,17 @@ function SignedInApp({ route, navigation, ...props}: any) {
     const handleTaskDelete = useCallback((item: Task) => {
         setTasks((({[item.id]: _, ...rest}: any) => rest)(tasks));
         setConstraints((({[item.id]: _, ...rest}: any) => rest)(constraints))
-        setEvents(removeTaskEvents(item.id, events));
+        let newEvents = events;
+        removeTaskEvents(item.id, events, eventId => {
+            const event = newEvents[eventId];
+            fetchBackend('DELETE', `task/${event.task_id}/event/${eventId}`, {})
+                .then((response) => response.text())
+                .then((text) => console.log('Delete event response: ' + text));
+
+            let {[eventId]: _, ...rest} = newEvents;
+            newEvents = rest;
+        });
+        setEvents(newEvents);
         fetchBackend('DELETE', `task/${item.id}`, {})
           .then((response) => response.text())
           .then((text) => console.log('Delete task response: ' + text));
@@ -338,7 +348,6 @@ function SignedInApp({ route, navigation, ...props}: any) {
             newEvents = rest;
         });
         setEvents(newEvents);
-        // TODO: REST API
         await scheduleTaskEvents(task_id, constraints[task_id], newEvents, curDate, async (e) => {
             const newEventResponse = await fetchBackend('POST', `task/${task_id}/event`, e);
             const newEventData = await newEventResponse.json();

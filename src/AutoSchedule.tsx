@@ -1,5 +1,4 @@
-import { Constraint, Event, Task } from "./Model";
-import { randomId } from "./Util";
+import { Constraint, Event } from "./Model";
 
 const switchTime = 10 * 60 * 1000;
 
