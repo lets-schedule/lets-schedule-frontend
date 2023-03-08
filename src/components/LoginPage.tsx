@@ -10,14 +10,6 @@ export default function LoginPage({ navigation, onSignInButtonPress, ...props }:
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-    const handleCaptureEmail = (text:string) => {
-        setEmail(text);
-    };
-
-    const handleCapturePassword = (text:string) => {
-        setPassword(text);
-    };
-
     const log_in_button = useMemo(() => {
         return {
             label: 'Log In',
@@ -36,8 +28,8 @@ export default function LoginPage({ navigation, onSignInButtonPress, ...props }:
             <View style={commStyles.signIn} />
             <Button title="Create Account" onPress={() => navigation.navigate("SignUp")} />
             <View style={commStyles.padded} />
-            <TextField placeholder='email' onChangeText={handleCaptureEmail} />
-            <TextField secureTextEntry placeholder='password' onChangeText={handleCapturePassword}/>
+            <TextField placeholder='email' onChangeText={setEmail} />
+            <TextField secureTextEntry placeholder='password' onChangeText={setPassword}/>
             <View style={commStyles.expand} />
             <FloatingButton visible={true} button={log_in_button} />
         </View>
