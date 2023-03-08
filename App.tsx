@@ -31,7 +31,7 @@ const user_email = '';
 
 type Authorization = {
     authToken: string;
-    refreshToken: string;
+    refresh_token: string;
     userEmail: string;
 }
 
@@ -56,19 +56,21 @@ function App(): JSX.Element {
     const [tasks, setTasks]: [Record<number, Task>, Function] = useState({});
     const [constraints, setConstraints]: [Record<number, Constraint>, Function] = useState({});
     const [email, setEmail]: [String, Function] = useState({});
-    const [auth, setAuth] = useState<Authorization[]>([]);
+    const [auth, setAuth] = useState<Authorization>(null);
 
-    function fetchBackend(method: string, path: string, bodyObj: object): Promise<Response> {
-      return fetch(serverURL + path, {
-        method: method,
-        headers: {
-          Accept: 'application/json',
-          Authorization: 'Bearer ' + auth.authToken,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(bodyObj),
-      });
-    }
+    const fetchBackend = useCallback(
+        (method: string, path: string, bodyObj: object): Promise<Response> => {
+            console.log(JSON.stringify(auth));
+            return fetch(serverURL + path, {
+            method: method,
+            headers: {
+            Accept: 'application/json',
+            Authorization: 'Bearer ' + auth.authToken,
+            'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(bodyObj),
+        });
+    }, [auth]);
 
     const curWeek = useMemo(() => {
         let date = new Date(curDate);
@@ -92,11 +94,7 @@ function App(): JSX.Element {
             endTime: endTime,
         };
 
-        try {
-            const newTaskResponse = await fetchBackend('POST', 'task', newTask);
-        } catch (errors) {
-            console.log(errors);
-        }
+        const newTaskResponse = await fetchBackend('POST', 'task', newTask);
 
         const newTaskData = await newTaskResponse.json();
         console.log('Create task response: ' + JSON.stringify(newTaskData));
@@ -110,7 +108,7 @@ function App(): JSX.Element {
         setEvents({ ...events, [newEvent.id]: newEvent });
 
         return newEvent.id;
-    }, [events])
+    }, [events, fetchBackend])
 
     const handleEventDelete = useCallback((e: Event) => {
         setEvents((({[e.id]: _, ...rest}: any) => rest)(events));
@@ -123,14 +121,14 @@ function App(): JSX.Element {
               .then((response) => response.text())
               .then((text) => console.log('Delete task response: ' + text));
         }
-    }, [tasks, events]);
+    }, [tasks, events, fetchBackend]);
 
     const handleEventChange = useCallback((e: any) => {
         setEvents({...events, [e.id]: mergeState(events[e.id], e)});
         fetchBackend('PATCH', `task/${e.task_id}/event/${e.id}`, e)
           .then((response) => response.text())
           .then((text) => console.log('Patch event response: ' + text));
-    }, [events]);
+    }, [events, fetchBackend]);
 
     const handleTaskCreate = useCallback(async () => {
         const newTask: Task = {
@@ -154,7 +152,7 @@ function App(): JSX.Element {
           .then((response) => response.text())
           .then((text) => console.log('Create constraint response: ' + text));
         return newTask.id;
-    }, [tasks, constraints]);
+    }, [tasks, constraints, fetchBackend]);
 
     const handleTaskDelete = useCallback((item: Task) => {
         setTasks((({[item.id]: _, ...rest}: any) => rest)(tasks));
@@ -163,14 +161,14 @@ function App(): JSX.Element {
         fetchBackend('DELETE', `task/${item.id}`, {})
           .then((response) => response.text())
           .then((text) => console.log('Delete task response: ' + text));
-    }, [tasks, events, constraints]);
+    }, [tasks, events, constraints, fetchBackend]);
 
     const handleTaskChange = useCallback((t: any) => {
         setTasks({...tasks, [t.id]: mergeState(tasks[t.id], t)});
         fetchBackend('PATCH', `task/${t.id}`, t)
           .then((response) => response.text())
           .then((text) => console.log('Patch task response: ' + text));
-    }, [tasks]);
+    }, [tasks, fetchBackend]);
 
     const handleSignUp = useCallback((email:string, password:string) => {  
         const credentials = {
@@ -199,7 +197,7 @@ function App(): JSX.Element {
                refresh_token: json.refresh_token,
                userEmail: json.resource_owner.email
             }
-            setAuth({newAuth});
+            setAuth(newAuth);
         } catch (error) {
             Alert.alert("That email has already been taken");
             console.error(error);
@@ -233,7 +231,7 @@ function App(): JSX.Element {
                refresh_token: json.refresh_token,
                userEmail: json.resource_owner.email
             }
-            setAuth({newAuth});
+            setAuth(newAuth);
         } catch (error) {
             Alert.alert("login failed");
             console.error(error);
@@ -254,7 +252,7 @@ function App(): JSX.Element {
         fetchBackend('PATCH', `task/${c.task_id}/constraint`, c)
           .then((response) => response.text())
           .then((text) => console.log('Patch constraint response: ' + text));
-    }, [constraints]);
+    }, [constraints, fetchBackend]);
 
     const getDayEvents = useCallback((date: Date) =>
         Object.values(events).filter((value: Event) =>
