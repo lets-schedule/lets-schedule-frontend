@@ -291,11 +291,6 @@ function SignedInApp({ route, navigation, ...props}: any) {
         setConstraints((({[item.id]: _, ...rest}: any) => rest)(constraints))
         let newEvents = events;
         removeTaskEvents(item.id, events, eventId => {
-            const event = newEvents[eventId];
-            fetchBackend('DELETE', `task/${event.task_id}/event/${eventId}`, {})
-                .then((response) => response.text())
-                .then((text) => console.log('Delete event response: ' + text));
-
             let {[eventId]: _, ...rest} = newEvents;
             newEvents = rest;
         });
