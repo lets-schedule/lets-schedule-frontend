@@ -4,8 +4,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { gestureHandlerRootHOC } from 'react-native-gesture-handler';
 
-import { Colors } from 'react-native/Libraries/NewAppScreen';
-
 import TaskList from './src/components/TaskList';
 import { Event, Constraint, Task } from './src/Model';
 import { mergeState, randomId, startOfHour } from './src/Util';
@@ -160,10 +158,10 @@ function fetchBackendWithAuth(method: string, path: string, bodyObj: object, aut
 async function pullAllObjects(auth: Authorization) {
     const getEventsResponse = await fetchBackendWithAuth('GET', 'event', undefined, auth);
     const eventsData = await getEventsResponse.json();
-    console.log('Events: ' + JSON.stringify(eventsData));
     const getTasksResponse = await fetchBackendWithAuth('GET', 'task', undefined, auth);
     const tasksData = await getTasksResponse.json();
-    console.log('Tasks: ' + JSON.stringify(tasksData));
+    const getConstraintsResponse = await fetchBackendWithAuth('GET', 'constraint', undefined, auth);
+    const constraintsData = await getConstraintsResponse.json();
 
     let tasks: Record<number, Task> = {};
     for (const t of tasksData) {
@@ -185,7 +183,16 @@ async function pullAllObjects(auth: Authorization) {
         };
     }
 
-    return {tasks: tasks, events: events, auth: auth};
+    let constraints: Record<number, Constraint> = {};
+    for (const c of constraintsData) {
+        constraints[c.id] = {
+            task_id: c.task_id,
+            dueTime: new Date(c.dueTime),
+            duration: c.duration
+        };
+    }
+
+    return {tasks: tasks, events: events, constraints: constraints, auth: auth};
 };
 
 function SignedInApp({ route, navigation, ...props}: any) {
@@ -193,7 +200,8 @@ function SignedInApp({ route, navigation, ...props}: any) {
 
     const [events, setEvents]: [Record<number, Event>, Function] = useState(route.params.events);
     const [tasks, setTasks]: [Record<number, Task>, Function] = useState(route.params.tasks);
-    const [constraints, setConstraints]: [Record<number, Constraint>, Function] = useState({});
+    const [constraints, setConstraints]: [Record<number, Constraint>, Function] =
+        useState(route.params.constraints);
 
     const fetchBackend = useCallback((method: string, path: string, bodyObj: object) =>
         fetchBackendWithAuth(method, path, bodyObj, auth),
