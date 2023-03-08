@@ -252,9 +252,6 @@ function SignedInApp({ route, navigation, ...props}: any) {
 
     const handleEventChange = useCallback((e: any) => {
         setEvents({...events, [e.id]: mergeState(events[e.id], e)});
-        fetchBackend('PATCH', `task/${e.task_id}/event/${e.id}`, e)
-          .then((response) => response.text())
-          .then((text) => console.log('Patch event response: ' + text));
     }, [events, fetchBackend]);
 
     const handleTaskCreate = useCallback(async () => {
@@ -292,16 +289,10 @@ function SignedInApp({ route, navigation, ...props}: any) {
 
     const handleTaskChange = useCallback((t: any) => {
         setTasks({...tasks, [t.id]: mergeState(tasks[t.id], t)});
-        fetchBackend('PATCH', `task/${t.id}`, t)
-          .then((response) => response.text())
-          .then((text) => console.log('Patch task response: ' + text));
     }, [tasks, fetchBackend]);
 
     const handleConstraintChange = useCallback((c: any) => {
         setConstraints({...constraints, [c.task_id]: mergeState(constraints[c.task_id], c)});
-        fetchBackend('PATCH', `task/${c.task_id}/constraint`, c)
-          .then((response) => response.text())
-          .then((text) => console.log('Patch constraint response: ' + text));
     }, [constraints, fetchBackend]);
 
     const getDayEvents = useCallback((date: Date) =>
@@ -310,11 +301,28 @@ function SignedInApp({ route, navigation, ...props}: any) {
             && value.startTime.getMonth() == date.getMonth()
             && value.startTime.getFullYear() == date.getFullYear()), [events]);
 
-    const handleAutoSchedule = useCallback((task_id: number) => {
+    const handleEventComplete = useCallback((eventId: number) => {
+        const event = events[eventId];
+        fetchBackend('PATCH', `task/${event.task_id}`, tasks[event.task_id])
+            .then((response) => response.text())
+            .then((text) => console.log('Patch task response: ' + text));
+        fetchBackend('PATCH', `task/${event.task_id}/event/${eventId}`, event)
+          .then((response) => response.text())
+          .then((text) => console.log('Patch event response: ' + text));
+    }, [events])
+
+    const handleTaskComplete = useCallback((task_id: number) => {
+        fetchBackend('PATCH', `task/${task_id}`, tasks[task_id])
+            .then((response) => response.text())
+            .then((text) => console.log('Patch task response: ' + text));
+        fetchBackend('PATCH', `task/${task_id}/constraint`, constraints[task_id])
+            .then((response) => response.text())
+            .then((text) => console.log('Patch constraint response: ' + text));
+
         const newEvents = removeTaskEvents(task_id, events);
         // TODO: REST API
         setEvents(scheduleTaskEvents(task_id, constraints[task_id], newEvents, curDate));
-    }, [events, constraints]);
+    }, [tasks, events, constraints]);
 
     const MainTabs = useCallback((props: any) => (
         <Tab.Navigator screenOptions={({ route }) => ({
@@ -348,13 +356,13 @@ function SignedInApp({ route, navigation, ...props}: any) {
         <UserStack.Screen name="EditAutoTask" options={{title: 'Edit Task'}}>
             {(props) => <EditAutoTaskPage {...props}
                 tasks={tasks} constraints={constraints} onTaskChange={handleTaskChange}
-                onConstraintChange={handleConstraintChange} onComplete={handleAutoSchedule} />}
+                onConstraintChange={handleConstraintChange} onComplete={handleTaskComplete} />}
         </UserStack.Screen>
         <UserStack.Screen name="EditFixedEvent" options={{title: 'Edit Event'}}>
             {(props) => <EditFixedEventPage {...props}
                 events={events} onEventChange={handleEventChange}
                 onEventDelete={handleEventDelete}
-                tasks={tasks} onTaskChange={handleTaskChange} />}
+                tasks={tasks} onTaskChange={handleTaskChange} onComplete={handleEventComplete} />}
         </UserStack.Screen>
     </UserStack.Navigator>
 }

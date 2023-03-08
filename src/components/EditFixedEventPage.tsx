@@ -10,10 +10,11 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 export default React.memo(function ({ route, navigation, ...props }: any) {
     const {eventId} = route.params;
-    const {events, onEventChange, onEventDelete, tasks, onTaskChange, ...others}: {
+    const {events, onEventChange, onEventDelete, tasks, onTaskChange, onComplete, ...others}: {
         events: Record<number, Event>, onEventChange: (v: any) => void,
         onEventDelete: (e: Event) => void,
         tasks: Record<number, Task>, onTaskChange: (v: any) => void,
+        onComplete: (eventId: number) => void,
         others: any} = props;
 
     const event = useMemo(() => events[eventId], [events, eventId]);
@@ -42,7 +43,7 @@ export default React.memo(function ({ route, navigation, ...props }: any) {
     const button = useMemo(() => {
         return {
             label: 'Done',
-            onPress: () => navigation.goBack(),
+            onPress: () => {navigation.goBack(); onComplete(eventId)},
         }}, [navigation]);
 
     return (
