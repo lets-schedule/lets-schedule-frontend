@@ -3,6 +3,7 @@
 This is the frontend mobile app for Let's Schedule, implemented in React Native and written in Typescript. The app will connect to the backend server via the REST api, and allow the user to sign in and view/edit their calendar. It will also handle the automatic scheduling of events, and push notifications.
 
 Directory Structure:
+
 - `src/`: Typescript source files
 - `__tests__/`: React Native tests
 - `android/`: Android native code
@@ -14,6 +15,7 @@ Directory Structure:
 - Root: Configuration files for React, Node, NPM, Ruby, Typescript, linters
 
 ### Required Source Code
+
 - Access the _Let's Schedule Backend_ [here](https://github.com/lets-schedule/lets-schedule-backend)
 
 ### User documentation
@@ -21,16 +23,19 @@ Directory Structure:
 Instructions for installation and app usage are available on [the wiki](https://github.com/lets-schedule/lets-schedule-frontend/wiki).
 
 ### Software Building
-- Download and install react native as well as Node, JDK, Android Studio, and Android SDK as described [here](https://reactnative.dev/docs/environment-setup)
+
+- Download and install react native as well as [Node.js](https://nodejs.org/en/download/), [JDK 11](https://www.oracle.com/java/technologies/javase/jdk11-archive-downloads.html), [Android Studio](https://developer.android.com/studio), and Android SDK 31 as described [here](https://reactnative.dev/docs/environment-setup)
 - Execute `$ npm install` command to download and install all dependencies
 - Start with `$ npx react-native start`. Once Metro is started, type `a` to install the app to a connected Android device.
 
 ### Testing
+
 - Refer to [React Native Testing Library](https://callstack.github.io/react-native-testing-library/)
 - Run all test with `$ npm test`
 - New tests should be added to `__tests__` directory
 
 ### Build a Release
+
 - Go to `android` directory by executing `$ cd android`
 - Execute `$ ./gradlew bundleRelease`
 - Refer to [official documentation](https://reactnative.dev/docs/signed-apk-android#generating-the-release-aab)
