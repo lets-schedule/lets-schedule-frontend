@@ -22,8 +22,7 @@ export default function LoginPage({ navigation, onSignInButtonPress, ...props }:
         return {
             label: 'Log In',
             onPress: () => {
-                onSignInButtonPress(email, password);
-                navigation.navigate("MainTabs");
+                onSignInButtonPress(email, password, navigation);
             }
         }
     }, [onSignInButtonPress, navigation, email, password]);

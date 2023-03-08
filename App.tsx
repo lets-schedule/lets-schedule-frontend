@@ -24,11 +24,6 @@ const serverURL = "http://52.12.169.220:3000/";
 
 const curDate = new Date(); // TODO: update time!!
 
-const authToken = '';
-const refresh_token = '';
-const resource_owner = '';
-const user_email = '';
-
 type Authorization = {
     authToken: string;
     refresh_token: string;
@@ -46,17 +41,110 @@ console.warn = (...args) => {
 
 
 function App(): JSX.Element {
-    const isDarkMode = useColorScheme() === 'dark';
+    const [email, setEmail]: [String, Function] = useState('');
 
-    const backgroundStyle = {
-        backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-    };
+    const handleSignUp = useCallback((email:string, password:string, navigation:any) => {  
+        const credentials = {
+            email: email,
+            password: password
+        };
+
+        getSignUp(credentials)
+            .then((auth: Authorization) => navigation.navigate("SignedIn", {auth: auth}));
+    }, []);
+
+    const getSignUp = async (data: Object): Promise<Authorization> => {
+        try {
+            const response = await fetch(
+                serverURL + 'users/tokens/sign_up', {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                }
+            )
+            const json = await response.json();
+            return {
+               authToken: json.token,
+               refresh_token: json.refresh_token,
+               userEmail: json.resource_owner.email
+            }
+        } catch (error) {
+            Alert.alert("That email has already been taken");
+            console.error(error);
+        } 
+    }
+
+    const handleSignIn = useCallback((email:string, password:string, navigation:any) => {  
+        const credentials = {
+            email: email,
+            password: password
+        };
+
+        getSignIn(credentials)
+            .then((auth: Authorization) => navigation.navigate("SignedIn", {auth: auth}));
+    }, []);
+
+    const getSignIn = async (data: Object): Promise<Authorization> => {
+        try {
+            const response = await fetch(
+                serverURL + 'users/tokens/sign_in', {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                }
+            )
+            const json = await response.json();
+            return {
+               authToken: json.token,
+               refresh_token: json.refresh_token,
+               userEmail: json.resource_owner.email
+            }
+        } catch (error) {
+            Alert.alert("login failed");
+            console.error(error);
+        } 
+    }
+
+    const handleEmailChange = useCallback((t: any) => {
+        setEmail({email: t});
+        console.log("set email to:" + t);
+    }, [setEmail]);
+
+    const getEmail = () => {
+        Alert.alert("Well at least this is working");
+    }
+
+    return (
+        <NavigationContainer>
+            <Stack.Navigator initialRouteName="Login">
+                <Stack.Screen name="Login" options={{title: "Let's Schedule"}}>
+                     {(props) => <LoginPage { ...props}
+                        onSignInButtonPress={handleSignIn}/>}
+                </Stack.Screen>
+                <Stack.Screen name="SignUp" options={{title: "Create Account"}}>
+                    {(props) => <SignUpPage { ...props}
+                        onSignUpButtonPress={handleSignUp} 
+                        />}
+                </Stack.Screen>
+                <Stack.Screen name="SignedIn" options={{headerShown: false}}
+                    component={SignedInApp} />
+            </Stack.Navigator>
+        </NavigationContainer>
+    );
+}
+
+function SignedInApp({ route, navigation, ...props}: any) {
+    const {auth} = route.params;
 
     const [events, setEvents]: [Record<number, Event>, Function] = useState({});
     const [tasks, setTasks]: [Record<number, Task>, Function] = useState({});
     const [constraints, setConstraints]: [Record<number, Constraint>, Function] = useState({});
-    const [email, setEmail]: [String, Function] = useState({});
-    const [auth, setAuth] = useState<Authorization>(null);
 
     const fetchBackend = useCallback(
         (method: string, path: string, bodyObj: object): Promise<Response> => {
@@ -76,7 +164,7 @@ function App(): JSX.Element {
         let date = new Date(curDate);
         date.setDate(date.getDate() - date.getDay());
         return date;
-    }, [])
+    }, []);
 
     const handleEventCreate = useCallback(async () => {
         const newTask: Task = {
@@ -108,7 +196,7 @@ function App(): JSX.Element {
         setEvents({ ...events, [newEvent.id]: newEvent });
 
         return newEvent.id;
-    }, [events, fetchBackend])
+    }, [events, fetchBackend, setTasks, setEvents])
 
     const handleEventDelete = useCallback((e: Event) => {
         setEvents((({[e.id]: _, ...rest}: any) => rest)(events));
@@ -121,14 +209,14 @@ function App(): JSX.Element {
               .then((response) => response.text())
               .then((text) => console.log('Delete task response: ' + text));
         }
-    }, [tasks, events, fetchBackend]);
+    }, [tasks, events, fetchBackend, setEvents, setTasks]);
 
     const handleEventChange = useCallback((e: any) => {
         setEvents({...events, [e.id]: mergeState(events[e.id], e)});
         fetchBackend('PATCH', `task/${e.task_id}/event/${e.id}`, e)
           .then((response) => response.text())
           .then((text) => console.log('Patch event response: ' + text));
-    }, [events, fetchBackend]);
+    }, [events, fetchBackend, setEvents]);
 
     const handleTaskCreate = useCallback(async () => {
         const newTask: Task = {
@@ -152,7 +240,7 @@ function App(): JSX.Element {
           .then((response) => response.text())
           .then((text) => console.log('Create constraint response: ' + text));
         return newTask.id;
-    }, [tasks, constraints, fetchBackend]);
+    }, [tasks, constraints, fetchBackend, setTasks, setConstraints]);
 
     const handleTaskDelete = useCallback((item: Task) => {
         setTasks((({[item.id]: _, ...rest}: any) => rest)(tasks));
@@ -161,98 +249,21 @@ function App(): JSX.Element {
         fetchBackend('DELETE', `task/${item.id}`, {})
           .then((response) => response.text())
           .then((text) => console.log('Delete task response: ' + text));
-    }, [tasks, events, constraints, fetchBackend]);
+    }, [tasks, events, constraints, fetchBackend, setTasks, setConstraints, setEvents]);
 
     const handleTaskChange = useCallback((t: any) => {
         setTasks({...tasks, [t.id]: mergeState(tasks[t.id], t)});
         fetchBackend('PATCH', `task/${t.id}`, t)
           .then((response) => response.text())
           .then((text) => console.log('Patch task response: ' + text));
-    }, [tasks, fetchBackend]);
-
-    const handleSignUp = useCallback((email:string, password:string) => {  
-        const credentials = {
-            email: email,
-            password: password
-        };
-
-        getSignUp(credentials);
-    }, []);
-
-    const getSignUp = async (data: Object) => {
-        try {
-            const response = await fetch(
-                serverURL + 'users/tokens/sign_up', {
-                    method: 'POST',
-                    headers: {
-                        Accept: 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                }
-            )
-            const json = await response.json();
-            const newAuth: Authorization = {
-               authToken: json.token,
-               refresh_token: json.refresh_token,
-               userEmail: json.resource_owner.email
-            }
-            setAuth(newAuth);
-        } catch (error) {
-            Alert.alert("That email has already been taken");
-            console.error(error);
-        } 
-    }
-
-    const handleSignIn = useCallback((email:string, password:string) => {  
-        const credentials = {
-            email: email,
-            password: password
-        };
-
-        getSignIn(credentials);
-    }, []);
-
-    const getSignIn = async (data: Object) => {
-        try {
-            const response = await fetch(
-                serverURL + 'users/tokens/sign_in', {
-                    method: 'POST',
-                    headers: {
-                        Accept: 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                }
-            )
-            const json = await response.json();
-            const newAuth: Authorization = {
-               authToken: json.token,
-               refresh_token: json.refresh_token,
-               userEmail: json.resource_owner.email
-            }
-            setAuth(newAuth);
-        } catch (error) {
-            Alert.alert("login failed");
-            console.error(error);
-        } 
-    }
-
-    const handleEmailChange = useCallback((t: any) => {
-        setEmail({email: t});
-        console.log("set email to:" + t);
-    }, [setEmail]);
-
-    const getEmail = () => {
-        Alert.alert("Well at least this is working");
-    }
+    }, [tasks, fetchBackend, setTasks]);
 
     const handleConstraintChange = useCallback((c: any) => {
         setConstraints({...constraints, [c.task_id]: mergeState(constraints[c.task_id], c)});
         fetchBackend('PATCH', `task/${c.task_id}/constraint`, c)
           .then((response) => response.text())
           .then((text) => console.log('Patch constraint response: ' + text));
-    }, [constraints, fetchBackend]);
+    }, [constraints, fetchBackend, setConstraints]);
 
     const getDayEvents = useCallback((date: Date) =>
         Object.values(events).filter((value: Event) =>
@@ -264,7 +275,7 @@ function App(): JSX.Element {
         const newEvents = removeTaskEvents(task_id, events);
         // TODO: REST API
         setEvents(scheduleTaskEvents(task_id, constraints[task_id], newEvents, curDate));
-    }, [events, constraints]);
+    }, [events, constraints, setEvents]);
 
     const MainTabs = (props: any) => (
         <Tab.Navigator screenOptions={({ route }) => ({
@@ -293,33 +304,20 @@ function App(): JSX.Element {
         </Tab.Navigator>
     );
 
-    return (
-        <NavigationContainer>
-            <Stack.Navigator initialRouteName="Login">
-                <Stack.Screen name="Login" options={{title: "Let's Schedule"}}>
-                     {(props) => <LoginPage { ...props}
-                        onSignInButtonPress={handleSignIn}/>}
-                </Stack.Screen>
-                <Stack.Screen name="SignUp" options={{title: "Create Account"}}>
-                    {(props) => <SignUpPage { ...props}
-                        onSignUpButtonPress={handleSignUp} 
-                        />}
-                </Stack.Screen>
-                <Stack.Screen name="MainTabs" component={MainTabs} options={{headerShown: false}} />
-                <Stack.Screen name="EditAutoTask" options={{title: 'Edit Task'}}>
-                    {(props) => <EditAutoTaskPage {...props}
-                        tasks={tasks} constraints={constraints} onTaskChange={handleTaskChange}
-                        onConstraintChange={handleConstraintChange} onComplete={handleAutoSchedule} />}
-                </Stack.Screen>
-                <Stack.Screen name="EditFixedEvent" options={{title: 'Edit Event'}}>
-                    {(props) => <EditFixedEventPage {...props}
-                        events={events} onEventChange={handleEventChange}
-                        onEventDelete={handleEventDelete}
-                        tasks={tasks} onTaskChange={handleTaskChange} />}
-                </Stack.Screen>
-            </Stack.Navigator>
-        </NavigationContainer>
-    );
+    return <Stack.Navigator>
+        <Stack.Screen name="MainTabs" component={MainTabs} options={{headerShown: false}} />
+        <Stack.Screen name="EditAutoTask" options={{title: 'Edit Task'}}>
+            {(props) => <EditAutoTaskPage {...props}
+                tasks={tasks} constraints={constraints} onTaskChange={handleTaskChange}
+                onConstraintChange={handleConstraintChange} onComplete={handleAutoSchedule} />}
+        </Stack.Screen>
+        <Stack.Screen name="EditFixedEvent" options={{title: 'Edit Event'}}>
+            {(props) => <EditFixedEventPage {...props}
+                events={events} onEventChange={handleEventChange}
+                onEventDelete={handleEventDelete}
+                tasks={tasks} onTaskChange={handleTaskChange} />}
+        </Stack.Screen>
+    </Stack.Navigator>
 }
 
 export default gestureHandlerRootHOC(App);
