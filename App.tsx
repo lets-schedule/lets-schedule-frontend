@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { LogBox, useColorScheme, Alert } from 'react-native';
+import { LogBox, Alert } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { gestureHandlerRootHOC } from 'react-native-gesture-handler';
@@ -51,7 +51,8 @@ function App(): JSX.Element {
         };
 
         getSignUp(credentials)
-            .then((auth: Authorization) => navigation.navigate("SignedIn", {auth: auth}));
+            .then(pullAllObjects)
+            .then((params) => navigation.navigate("SignedIn", params));
     }, []);
 
     const getSignUp = async (data: Object): Promise<Authorization> => {
@@ -85,7 +86,8 @@ function App(): JSX.Element {
         };
 
         getSignIn(credentials)
-            .then((auth: Authorization) => navigation.navigate("SignedIn", {auth: auth}));
+            .then(pullAllObjects)
+            .then((params) => navigation.navigate("SignedIn", params));
     }, []);
 
     const getSignIn = async (data: Object): Promise<Authorization> => {
@@ -140,26 +142,62 @@ function App(): JSX.Element {
     );
 }
 
+function fetchBackendWithAuth(method: string, path: string, bodyObj: object, auth: Authorization):
+        Promise<Response> {
+    const request =  {
+        method: method,
+        headers: {
+            Accept: 'application/json',
+            Authorization: 'Bearer ' + auth.authToken,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bodyObj),
+    };
+    console.log('Sending request to ' + path + ': ' + JSON.stringify(request));
+    return fetch(serverURL + path, request);
+}
+
+async function pullAllObjects(auth: Authorization) {
+    const getEventsResponse = await fetchBackendWithAuth('GET', 'event', undefined, auth);
+    const eventsData = await getEventsResponse.json();
+    console.log('Events: ' + JSON.stringify(eventsData));
+    const getTasksResponse = await fetchBackendWithAuth('GET', 'task', undefined, auth);
+    const tasksData = await getTasksResponse.json();
+    console.log('Tasks: ' + JSON.stringify(tasksData));
+
+    let tasks: Record<number, Task> = {};
+    for (const t of tasksData) {
+        tasks[t.id] = {
+            id: t.id,
+            title: t.title,
+            category: t.category,
+            priority: t.priority,
+        };
+    }
+
+    let events: Record<number, Event> = {};
+    for (const e of eventsData) {
+        events[e.id] = {
+            id: e.id,
+            task_id: e.task_id,
+            startTime: new Date(e.startTime),
+            endTime: new Date(e.endTime),
+        };
+    }
+
+    return {tasks: tasks, events: events, auth: auth};
+};
+
 function SignedInApp({ route, navigation, ...props}: any) {
     const {auth} = route.params;
 
-    const [events, setEvents]: [Record<number, Event>, Function] = useState({});
-    const [tasks, setTasks]: [Record<number, Task>, Function] = useState({});
+    const [events, setEvents]: [Record<number, Event>, Function] = useState(route.params.events);
+    const [tasks, setTasks]: [Record<number, Task>, Function] = useState(route.params.tasks);
     const [constraints, setConstraints]: [Record<number, Constraint>, Function] = useState({});
 
-    const fetchBackend = useCallback(
-        (method: string, path: string, bodyObj: object): Promise<Response> => {
-            console.log(JSON.stringify(auth));
-            return fetch(serverURL + path, {
-                method: method,
-                headers: {
-                Accept: 'application/json',
-                Authorization: 'Bearer ' + auth.authToken,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(bodyObj),
-        });
-    }, [auth]);
+    const fetchBackend = useCallback((method: string, path: string, bodyObj: object) =>
+        fetchBackendWithAuth(method, path, bodyObj, auth),
+    [auth]);
 
     const curWeek = useMemo(() => {
         let date = new Date(curDate);
